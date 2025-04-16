@@ -1,5 +1,33 @@
-node_modules
-dist
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
 .env
-.vscode
-.github
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+coverage/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# GitHub workflows (si no deseas incluirlos)
+.github/
