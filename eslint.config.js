@@ -1,15 +1,15 @@
-import typeScriptEsLintPlugin from '@typescript-eslint/eslint-plugin';
-import typeScriptEsLintParser from '@typescript-eslint/parser';
-import eslintPluginPrettier from 'eslint-plugin-prettier';
+const typeScriptEsLintPlugin = require('@typescript-eslint/eslint-plugin');
+const typeScriptEsLintParser = require('@typescript-eslint/parser');
+const eslintPluginPrettier = require('eslint-plugin-prettier');
 
-export default [
+module.exports = [
   {
     files: ['**/*.ts', '**/*.js'],
     languageOptions: {
       parser: typeScriptEsLintParser,
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module',
+        sourceType: 'script', // Compatible con CommonJS
         project: './tsconfig.json',
       },
     },

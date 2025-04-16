@@ -2,7 +2,7 @@
   "name": "availability-api-nest",
   "version": "1.0.0",
   "description": "NestJS API for availability data simulation",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node dist/main",
     "start:dev": "nest start --watch",
