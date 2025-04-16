@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { readFileSync, existsSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { Availability } from './interfaces/availability.interface';
 
@@ -13,10 +13,14 @@ export class AvailabilityService {
     const endDate = new Date(end);
     const allFiles = readdirSync(this.dataDir);
 
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    for (
+      let d = new Date(startDate);
+      d <= endDate;
+      d.setDate(d.getDate() + 1)
+    ) {
       const datePrefix = `availability-${d.toISOString().split('T')[0].replace(/-/g, '')}`;
       const matchingFiles = allFiles
-        .filter(f => f.startsWith(datePrefix) && f.endsWith('.json'))
+        .filter((f) => f.startsWith(datePrefix) && f.endsWith('.json'))
         .sort(); // Para asegurar el orden -01, -02, etc.
 
       for (const file of matchingFiles) {

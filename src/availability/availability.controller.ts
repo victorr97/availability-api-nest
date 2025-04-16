@@ -1,19 +1,19 @@
-import { BadRequestException, Controller, Get, Query } from "@nestjs/common";
-import { AvailabilityService } from "./availability.service";
-import { AvailabilityQueryDto } from "./dto/availability-query.dto";
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { AvailabilityService } from './availability.service';
+import { AvailabilityQueryDto } from './dto/availability-query.dto';
 
-@Controller("availability")
+@Controller('availability')
 export class AvailabilityController {
   constructor(private readonly availabilityService: AvailabilityService) {}
 
-  @Get("by-date")
+  @Get('by-date')
   public getAvailabilityByDate(@Query() query: AvailabilityQueryDto) {
     if (!query.start || !query.end)
-      throw new BadRequestException("start and end are required");
+      throw new BadRequestException('start and end are required');
 
     return this.availabilityService.getAvailabilityByDate(
       query.start,
-      query.end
+      query.end,
     );
   }
 }
