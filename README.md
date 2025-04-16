@@ -1,3 +1,39 @@
+## 🚀 How to Use the Project with Docker
+
+This project is configured to run inside a Docker container, ensuring there are no compatibility issues with Node.js versions or dependencies.
+
+### **Prerequisites**
+1. Install **Docker** on your machine. You can download it from [Docker Desktop](https://www.docker.com/products/docker-desktop).
+2. Optional: Install **Docker Compose** (not required for this project).
+
+---
+
+### **Steps to Use the Project**
+
+1. **Build the Docker image:**
+   From the root of the project, run the following command:
+   ```bash
+   docker build -t availability-api-nest .
+   ```
+
+2. **Run the container:**
+    After building the image, run the container and map port 3002:  
+   ```bash
+   docker run -p 3002:3002 availability-api-nest
+   ```
+
+3. **Test the endpoint:**
+    You can now use the example endpoint by accessing:
+      ```bash
+   http://localhost:3002/availability/by-date?start=2025-04-08&end=2025-04-10
+   ```
+
+## Important Notes
+The project exposes port 3002. If you need to change it, update the Dockerfile and the docker run command.
+Ensure that port 3002 is not being used by another service on your machine.
+
+---
+
 ## 🧪 Technical Challenge — Backend Developer
 
 Welcome to your technical challenge! This test is designed to evaluate your backend development skills using Node.js and TypeScript in a context inspired by a real tourism marketplace.
