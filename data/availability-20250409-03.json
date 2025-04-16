@@ -1,0 +1,298 @@
+[
+  {
+    "date": "2025-04-09",
+    "activityId": "a969d9f6-f7d6-43d1-9a36-02de49b7bce3",
+    "venue": "f3067eb5-9435-4a84-a6b5-3c0b4a9f18cf",
+    "city": "5ff8e5f2-98d9-4321-8ae4-3f6c48c7f8d9",
+    "timeslots": [
+      {
+        "time": "08:30",
+        "quantity": 3
+      },
+      {
+        "time": "09:00",
+        "quantity": 143
+      },
+      {
+        "time": "10:30",
+        "quantity": 466
+      },
+      {
+        "time": "11:00",
+        "quantity": 76
+      },
+      {
+        "time": "11:30",
+        "quantity": 114
+      },
+      {
+        "time": "12:30",
+        "quantity": 119
+      },
+      {
+        "time": "14:00",
+        "quantity": 52
+      },
+      {
+        "time": "15:00",
+        "quantity": 281
+      },
+      {
+        "time": "15:30",
+        "quantity": 402
+      },
+      {
+        "time": "16:30",
+        "quantity": 186
+      },
+      {
+        "time": "17:30",
+        "quantity": 336
+      }
+    ]
+  },
+  {
+    "date": "2025-04-09",
+    "activityId": "c9fba3f0-20c3-4416-bc71-8c87b9d6b339",
+    "venue": "35bcebc7-4f47-4d29-bb0d-723af764f89e",
+    "city": "d10bded7-b89e-4609-a25a-39b1a7a37fa6",
+    "timeslots": [
+      {
+        "time": "08:30",
+        "quantity": 117
+      },
+      {
+        "time": "09:00",
+        "quantity": 203
+      },
+      {
+        "time": "09:30",
+        "quantity": 112
+      },
+      {
+        "time": "10:00",
+        "quantity": 27
+      },
+      {
+        "time": "10:30",
+        "quantity": 287
+      },
+      {
+        "time": "11:00",
+        "quantity": 369
+      },
+      {
+        "time": "11:30",
+        "quantity": 375
+      },
+      {
+        "time": "12:30",
+        "quantity": 353
+      },
+      {
+        "time": "13:30",
+        "quantity": 464
+      },
+      {
+        "time": "14:30",
+        "quantity": 274
+      },
+      {
+        "time": "15:00",
+        "quantity": 218
+      },
+      {
+        "time": "15:30",
+        "quantity": 249
+      },
+      {
+        "time": "16:00",
+        "quantity": 308
+      },
+      {
+        "time": "16:30",
+        "quantity": 476
+      },
+      {
+        "time": "17:00",
+        "quantity": 175
+      },
+      {
+        "time": "17:30",
+        "quantity": 376
+      }
+    ]
+  },
+  {
+    "date": "2025-04-09",
+    "activityId": "2a4a8d5b-66ee-4c9b-a47c-d4d6ea17d64e",
+    "venue": "b9222c3c-0458-44d2-a660-4d06495f189f",
+    "city": "a1c9f902-4572-4fd7-aaf5-8fd8be37c171",
+    "timeslots": [
+      {
+        "time": "08:00",
+        "quantity": 420
+      },
+      {
+        "time": "08:30",
+        "quantity": 92
+      },
+      {
+        "time": "09:00",
+        "quantity": 60
+      },
+      {
+        "time": "09:30",
+        "quantity": 174
+      },
+      {
+        "time": "11:30",
+        "quantity": 280
+      },
+      {
+        "time": "12:30",
+        "quantity": 423
+      },
+      {
+        "time": "13:00",
+        "quantity": 393
+      },
+      {
+        "time": "13:30",
+        "quantity": 398
+      },
+      {
+        "time": "14:00",
+        "quantity": 99
+      },
+      {
+        "time": "15:30",
+        "quantity": 222
+      },
+      {
+        "time": "16:00",
+        "quantity": 84
+      },
+      {
+        "time": "16:30",
+        "quantity": 90
+      }
+    ]
+  },
+  {
+    "date": "2025-04-09",
+    "activityId": "5c4a4e3c-ec99-4a6a-aeb4-9c21e4a36842",
+    "venue": "5b3fc20b-37a5-4d84-83a0-fbdf0e1a81b7",
+    "city": "d2e87f4e-03b3-4302-8f8e-3cf3463b36ef",
+    "timeslots": [
+      {
+        "time": "08:00",
+        "quantity": 391
+      },
+      {
+        "time": "09:30",
+        "quantity": 275
+      },
+      {
+        "time": "10:30",
+        "quantity": 127
+      },
+      {
+        "time": "11:00",
+        "quantity": 422
+      },
+      {
+        "time": "11:30",
+        "quantity": 44
+      },
+      {
+        "time": "12:30",
+        "quantity": 34
+      },
+      {
+        "time": "13:00",
+        "quantity": 347
+      },
+      {
+        "time": "14:00",
+        "quantity": 192
+      },
+      {
+        "time": "14:30",
+        "quantity": 10
+      },
+      {
+        "time": "15:30",
+        "quantity": 335
+      },
+      {
+        "time": "17:00",
+        "quantity": 67
+      }
+    ]
+  },
+  {
+    "date": "2025-04-09",
+    "activityId": "e0b2a7b6-e92d-4ae5-8f38-0c43aee39419",
+    "venue": "47c2f804-225b-4e7a-95a1-fd6673e99c32",
+    "city": "bd4aa8f4-e281-438c-b8ce-c204b63401f1",
+    "timeslots": [
+      {
+        "time": "09:00",
+        "quantity": 102
+      },
+      {
+        "time": "10:00",
+        "quantity": 350
+      },
+      {
+        "time": "10:30",
+        "quantity": 29
+      },
+      {
+        "time": "11:30",
+        "quantity": 316
+      },
+      {
+        "time": "12:00",
+        "quantity": 372
+      },
+      {
+        "time": "12:30",
+        "quantity": 180
+      },
+      {
+        "time": "13:00",
+        "quantity": 301
+      },
+      {
+        "time": "13:30",
+        "quantity": 90
+      },
+      {
+        "time": "14:00",
+        "quantity": 314
+      },
+      {
+        "time": "14:30",
+        "quantity": 483
+      },
+      {
+        "time": "15:00",
+        "quantity": 207
+      },
+      {
+        "time": "16:30",
+        "quantity": 268
+      },
+      {
+        "time": "17:00",
+        "quantity": 309
+      },
+      {
+        "time": "17:30",
+        "quantity": 188
+      }
+    ]
+  }
+]
