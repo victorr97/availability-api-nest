@@ -14,6 +14,9 @@ export function setupSwagger(app: INestApplication) {
     .addTag('pricing', 'Endpoints for dynamic pricing suggestions')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [], // Add any custom models here if needed
+  });
+
   SwaggerModule.setup('api', app, document);
 }

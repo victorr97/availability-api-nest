@@ -1,7 +1,7 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { AvailabilityService } from 'availability/availability.service';
 import { AvailabilityQueryDto } from 'availability/dto/availability-query.dto';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('availability')
 @Controller('availability')
@@ -9,15 +9,22 @@ export class AvailabilityController {
   constructor(private readonly availabilityService: AvailabilityService) {}
 
   @Get('by-date')
+  @ApiOperation({
+    summary: 'Get availability by date range',
+    description:
+      'Retrieve a list of availability records for a given date range. The response includes availability data for specific activities, venues, and cities.',
+  })
   @ApiQuery({
     name: 'start',
     type: String,
     description: 'Start date in YYYY-MM-DD format',
+    example: '2025-04-08',
   })
   @ApiQuery({
     name: 'end',
     type: String,
     description: 'End date in YYYY-MM-DD format',
+    example: '2025-04-10',
   })
   @ApiResponse({
     status: 200,
@@ -27,6 +34,18 @@ export class AvailabilityController {
     status: 400,
     description:
       'Invalid request. Please ensure the "start" and "end" parameters are provided, valid, and in the correct format (YYYY-MM-DD).',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No availability data found for the given date range.',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'The provided date range is invalid or out of bounds.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'An unexpected error occurred on the server.',
   })
   public getAvailabilityByDate(@Query() query: AvailabilityQueryDto) {
     const { start, end } = query;
@@ -64,7 +83,22 @@ export class AvailabilityController {
       );
     }
 
-    // Call the service to get availability data
-    return this.availabilityService.getAvailabilityByDate(start, end);
+    try {
+      // Call the service to get availability data
+      const data = this.availabilityService.getAvailabilityByDate(start, end);
+
+      if (!data || data.length === 0) {
+        throw new NotFoundException(
+          'No availability data found for the given date range.',
+        );
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      throw new InternalServerErrorException(
+        'An unexpected error occurred while processing your request.',
+      );
+    }
   }
 }
