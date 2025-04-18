@@ -1,4 +1,6 @@
 import { Config } from 'jest';
+import { pathsToModuleNameMapper } from 'ts-jest';
+import { compilerOptions } from './tsconfig.json';
 
 const config: Config = {
   moduleFileExtensions: ['js', 'json', 'ts'],
@@ -10,11 +12,9 @@ const config: Config = {
   collectCoverageFrom: ['**/*.(t|j)s'], // Files for which coverage is collected
   coverageDirectory: './coverage', // Output directory for coverage reports
   testEnvironment: 'node', // Test environment
-  moduleNameMapper: {
-    // Map absolute paths based on baseUrl and paths from tsconfig.json
-    '^availability/(.*)$': '<rootDir>/src/availability/$1',
-    '^utils/(.*)$': '<rootDir>/src/utils/$1',
-  },
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: '<rootDir>/',
+  }),
 };
 
 export default config;

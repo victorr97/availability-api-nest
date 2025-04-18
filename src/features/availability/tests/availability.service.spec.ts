@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AvailabilityService } from 'availability/availability.service';
-import { FileReaderSingleton } from 'common/utils/file-reader.singleton';
-import { Availability } from 'availability/interfaces/availability.interface';
+import { AvailabilityService } from '@features/availability/availability.service';
+import { FileReaderSingleton } from '@common/utils/file-reader.singleton';
+import { Availability } from '@features/availability/interfaces/availability.interface';
 
-jest.mock('../../utils/file-reader.singleton', () => {
+// Mock the FileReaderSingleton
+jest.mock('@common/utils/file-reader.singleton', () => {
   return {
     FileReaderSingleton: {
       getInstance: jest.fn().mockReturnValue({
@@ -24,10 +25,10 @@ describe('AvailabilityService', () => {
 
     service = module.get<AvailabilityService>(AvailabilityService);
 
-    // Mock the FileReaderSingleton instance
+    // Access the mocked FileReaderSingleton
     fileReaderMock =
       FileReaderSingleton.getInstance() as jest.Mocked<FileReaderSingleton>;
-    fileReaderMock.getDataByDatePrefix.mockClear(); // Clear previous mock calls
+    fileReaderMock.getDataByDatePrefix.mockClear(); // Clear previous calls to the mock
   });
 
   // Verify that the service is properly defined
@@ -47,7 +48,7 @@ describe('AvailabilityService', () => {
       },
     ];
 
-    // Mock the FileReaderSingleton to return data for specific prefixes
+    // Configure the mock to return data
     fileReaderMock.getDataByDatePrefix.mockImplementation((prefix: string) => {
       if (prefix === 'availability-20250408') {
         return mockData;

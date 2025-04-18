@@ -6,8 +6,8 @@ import {
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AvailabilityService } from 'availability/availability.service';
-import { AvailabilityQueryDto } from 'availability/dto/availability-query.dto';
+import { AvailabilityService } from '@features/availability/availability.service';
+import { AvailabilityQueryDto } from '@features/availability/dto/availability-query.dto';
 import { ApiQuery, ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('availability')
