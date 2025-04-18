@@ -1,10 +1,18 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from 'app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Enable Helmet for security headers
+  app.use(helmet());
+
+  // Disable the 'x-powered-by' header
+  // This is a security measure to prevent revealing the technology stack
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   // Enable global validation
   app.useGlobalPipes(
