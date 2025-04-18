@@ -1,3 +1,111 @@
+# Availability API
+
+This project is a backend API built with NestJS to manage availability data for a tourism marketplace. It includes features for forecasting, marketing insights, and dynamic pricing suggestions.
+
+---
+
+## 🚀 How to Use the Project with Docker Compose
+
+To ensure there are no compatibility issues with Node.js versions or dependencies, this project is designed to run inside a Docker container using Docker Compose.
+
+### **Prerequisites**
+1. Install **Docker** on your machine. You can download it from [Docker Desktop](https://www.docker.com/products/docker-desktop).
+2. Install **Docker Compose** (comes pre-installed with Docker Desktop).
+
+---
+
+### **Steps to Use the Project**
+
+1. **(Optional) Install dependencies locally**:
+   If you want to use your IDE (like VSCode) with features like IntelliSense, linting, or avoid seeing everything in red due to missing modules, you can run:
+   ```bash
+   npm install
+   ```
+   This step is optional and only useful if you want a better developer experience inside your local editor. The dependencies will also be installed inside the Docker container, so you can skip this step if you're only running the app via Docker.
+
+
+2. **Start the container:**
+   Run the following command to build and start the container:
+   ```bash
+   docker compose up
+   ```
+   This will start the marketplace-api container and expose the API on port 3002.
+
+3. **Test the endpoint:**
+   Once the container is running, you can test the API using the following example endpoint:
+   ```bash
+   http://localhost:3002/availability/by-date?start=2025-04-08&end=2025-04-10
+   ```
+   - The API will be accessible at http://localhost:3002.
+   - Swagger documentation is available at http://localhost:3002/api.
+
+4. **Stop the container:**
+   To stop the container, run:
+   ```bash
+   docker compose down
+   ```
+
+## 🧹 Code Quality
+
+### **Linting**
+
+Run the linter to check for code issues:
+
+```bash
+npm run lint
+```
+
+### **Fix Linting Issues**
+
+Automatically fix linting issues:
+```bash
+npm run lint:fix
+```
+
+### **Check Formatting**
+
+Verify code formatting with Prettier:
+```bash
+npm run prettier:check
+```
+
+## 🧪 Testing
+
+### **Run Tests**
+Execute all tests:
+```bash
+npm run test
+```
+
+### **Watch Tests**
+Run tests in watch mode:
+```bash
+npm run test:watch
+```
+
+### **Test Coverage**
+Generate a test coverage report:
+```bash
+npm run test:cov
+```
+
+## 🧹 Clean the Project
+Remove the dist folder:
+```bash
+npm run clean
+```
+
+## 📄 API Documentation
+The API documentation is automatically generated using Swagger. Once the server is running, you can access it at:
+
+- Swagger UI: http://localhost:3002/api
+
+## 📋 Important Notes
+The project exposes port 3002. If you need to change it, update the docker-compose.yml file and the ports section.
+Ensure that port 3002 is not being used by another service on your machine.
+
+---
+
 ## 🧪 Technical Challenge — Backend Developer
 
 Welcome to your technical challenge! This test is designed to evaluate your backend development skills using Node.js and TypeScript in a context inspired by a real tourism marketplace.
