@@ -28,6 +28,21 @@ module.exports = [
     },
   },
   {
-    ignores: ['node_modules/**'], // Ignorar node_modules
+    ignores: ['node_modules/**', 'eslint.config.js'], // Ignorar node_modules y eslint.config.js
+  },
+  {
+    // Add overrides for jest.config.js
+    files: ['jest.config.js'],
+    languageOptions: {
+      parser: 'espree', // Use the default JavaScript parser
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'script', // Compatible with CommonJS
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-var-requires': 'off', // Allow require statements
+      '@typescript-eslint/no-unused-vars': 'off', // Disable unused vars for JS
+    },
   },
 ];

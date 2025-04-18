@@ -1,11 +1,11 @@
 services:
   app:
     build: .
-    container_name: nest-dev
-    working_dir: /app
+    container_name: marketplace-api 
+    working_dir: /app 
     volumes:
-      - .:/app  # Monta el código fuente para sincronización
-      - /app/node_modules  # Evita problemas con node_modules locales
+      - .:/app  # Mount the source code for live synchronization (hot reload)
+      - /app/node_modules  # Prevent conflicts with local node_modules
     ports:
       - "3002:3002"
-    command: npm run start:dev  # Inicia el servidor en modo de desarrollo
+    command: npm run start:dev 

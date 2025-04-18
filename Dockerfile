@@ -1,21 +1,25 @@
+# Use Node.js 20-slim as the base image (stable version)
+# Note: This version has a known high vulnerability (CVE-2024-21538).
+# The vulnerability does not affect this project directly, as cross-spawn 7.0.6 or higher is installed,
+# which resolves the Regular Expression Denial of Service (ReDoS) issue present in 7.0.5.
 FROM node:20-slim
 
 WORKDIR /app
 
-# Instala 'procps' para hot-reload
+# Install 'procps' for hot-reload
 RUN apt-get update && apt-get install -y procps
 
-# Copia los archivos de configuración
+# Copy configuration files
 COPY package*.json ./
 
-# Instala las dependencias
+# Install dependencies
 RUN npm install
 
-# Copia todo el código
+# Copy all source code
 COPY . .
 
-# Expone el puerto necesario para la app
+# Expose the port required for the app
 EXPOSE 3002
 
-# Comando para ejecutar la aplicación en modo de desarrollo (hot reload)
+# Command to run the application in development mode (hot reload)
 CMD ["npm", "run", "start:dev"]
