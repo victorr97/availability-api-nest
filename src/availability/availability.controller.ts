@@ -60,7 +60,7 @@ export class AvailabilityController {
     // Validate that parameters are present
     if (!start || !end) {
       throw new BadRequestException(
-        'Both "start" and "end" parameters are required.',
+        'Both start and end dates are required. Please provide them in the format YYYY-MM-DD.',
       );
     }
 
@@ -68,7 +68,7 @@ export class AvailabilityController {
     const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateFormatRegex.test(start) || !dateFormatRegex.test(end)) {
       throw new BadRequestException(
-        '"start" and "end" must be valid ISO date strings in the format YYYY-MM-DD.',
+        'The start and end dates must be in the format YYYY-MM-DD. Please check your input.',
       );
     }
 
@@ -79,14 +79,14 @@ export class AvailabilityController {
     // Validate that the dates are valid
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       throw new BadRequestException(
-        '"start" and "end" must be valid ISO date strings.',
+        'The provided dates are invalid. Please ensure they are valid calendar dates.',
       );
     }
 
     // Validate that the start date is earlier than the end date
     if (startDate > endDate) {
       throw new BadRequestException(
-        '"start" date must be earlier than "end" date.',
+        'The start date must be earlier than the end date. Please adjust your input.',
       );
     }
 
@@ -96,7 +96,7 @@ export class AvailabilityController {
 
       if (!data || data.length === 0) {
         throw new NotFoundException(
-          'No availability data found for the given date range.',
+          'No availability data was found for the specified date range. Please try a different range.',
         );
       }
 
@@ -104,7 +104,7 @@ export class AvailabilityController {
     } catch (error) {
       console.error('Unexpected error:', error);
       throw new InternalServerErrorException(
-        'An unexpected error occurred while processing your request.',
+        'An unexpected error occurred while processing your request. Please try again later.',
       );
     }
   }
