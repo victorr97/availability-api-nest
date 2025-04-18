@@ -16,11 +16,13 @@ To ensure there are no compatibility issues with Node.js versions or dependencie
 
 ### **Steps to Use the Project**
 
-1. **Install dependencies**:
-   Before starting the container, install the required dependencies locally:
+1. **(Optional) Install dependencies locally**:
+   If you want to use your IDE (like VSCode) with features like IntelliSense, linting, or avoid seeing everything in red due to missing modules, you can run:
    ```bash
    npm install
    ```
+   This step is optional and only useful if you want a better developer experience inside your local editor. The dependencies will also be installed inside the Docker container, so you can skip this step if you're only running the app via Docker.
+
 
 2. **Start the container:**
    Run the following command to build and start the container:
