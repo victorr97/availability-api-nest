@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AvailabilityController } from './availability.controller';
-import { AvailabilityService } from './availability.service';
+import { AvailabilityController } from 'availability/availability.controller';
+import { AvailabilityService } from 'availability/availability.service';
 import { BadRequestException } from '@nestjs/common';
 
 // Mock data

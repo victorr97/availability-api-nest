@@ -1,6 +1,6 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { AvailabilityService } from './availability.service';
-import { AvailabilityQueryDto } from './dto/availability-query.dto';
+import { AvailabilityService } from 'availability/availability.service';
+import { AvailabilityQueryDto } from 'availability/dto/availability-query.dto';
 
 @Controller('availability')
 export class AvailabilityController {

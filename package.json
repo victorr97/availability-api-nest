@@ -1,7 +1,7 @@
 {
-  "name": "availability-api-nest",
+  "name": "marketplace-api",
   "version": "1.0.0",
-  "description": "NestJS API for availability data simulation",
+  "description": "NestJS API for marketplace data simulation",
   "type": "commonjs",
   "scripts": {
     "start": "node dist/main",

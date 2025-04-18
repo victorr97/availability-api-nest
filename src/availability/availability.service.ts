@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { FileReaderSingleton } from '../utils/file-reader.singleton';
-import { Availability } from './interfaces/availability.interface';
-
+import { FileReaderSingleton } from 'utils/file-reader.singleton';
+import { Availability } from 'availability/interfaces/availability.interface';
 @Injectable()
 export class AvailabilityService {
   private fileReader = FileReaderSingleton.getInstance();

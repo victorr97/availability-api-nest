@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AvailabilityService } from './availability.service';
-import { FileReaderSingleton } from '../utils/file-reader.singleton';
-import { Availability } from './interfaces/availability.interface';
+import { AvailabilityService } from 'availability/availability.service';
+import { FileReaderSingleton } from 'utils/file-reader.singleton';
+import { Availability } from 'availability/interfaces/availability.interface';
 
-jest.mock('../utils/file-reader.singleton', () => {
+jest.mock('../../utils/file-reader.singleton', () => {
   return {
     FileReaderSingleton: {
       getInstance: jest.fn().mockReturnValue({
