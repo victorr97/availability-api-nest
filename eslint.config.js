@@ -19,7 +19,10 @@ module.exports = [
     },
     rules: {
       'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/no-empty-interface': 'error',
       camelcase: ['error', { ignoreDestructuring: true }],
     },
