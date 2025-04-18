@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AvailabilityService } from 'availability/availability.service';
-import { FileReaderSingleton } from 'utils/file-reader.singleton';
+import { FileReaderSingleton } from 'common/utils/file-reader.singleton';
 import { Availability } from 'availability/interfaces/availability.interface';
 
 jest.mock('../../utils/file-reader.singleton', () => {
