@@ -1,4 +1,4 @@
-import { ForecastingStrategy } from './forecasting-strategy.interface';
+import { ForecastingStrategy } from '@features/forecasting/strategies/forecasting-strategy.interface';
 
 export class LinearRegressionStrategy implements ForecastingStrategy {
   predict(
