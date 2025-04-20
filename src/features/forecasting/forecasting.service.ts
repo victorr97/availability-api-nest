@@ -1,20 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { FileReaderSingleton } from '@common/utils/file-reader.singleton';
-import { Forecasting } from '@features/forecasting/interfaces/forecasting.interface';
+import { Forecasting } from './interfaces/forecasting.interface';
+import { LinearRegressionStrategy } from './strategies/linear-regression.strategy';
+import {
+  aggregateByDayAndTimeslotWithDate,
+  aggregateByTimeslotWithDate,
+} from './utils/forecasting-aggregator.util';
+import { calculateMAE, calculateMAPE } from './utils/forecasting-metrics.util';
+
+type AggregationOption = 'A' | 'B';
 
 @Injectable()
 export class ForecastingService {
   private fileReader = FileReaderSingleton.getInstance();
+  private strategy = new LinearRegressionStrategy();
 
-  // Cambia este valor para alternar entre la opción A y B
-  private readonly predictionMode: 'A' | 'B' = 'B';
+  // Cambia esta opción para alternar entre A (por día de la semana) y B (unificado)
+  private aggregationOption: AggregationOption = 'B';
 
   async predictAvailability(
     activityId: string,
     cityId: string,
     venueId: string,
     targetDate: string,
-  ): Promise<Forecasting> {
+  ): Promise<Forecasting & { mae: number; mape: number }> {
     const historicalData = this.fileReader.getDataByDatePrefix('availability-');
     const filteredData = historicalData.filter(
       (entry) =>
@@ -23,27 +32,81 @@ export class ForecastingService {
         entry.venue === venueId,
     );
 
-    let predictedTimeslots: any[];
+    // Obtener la última fecha de los datos históricos
+    const maxDate = filteredData
+      .map((entry) => new Date(entry.date))
+      .reduce((a, b) => (a > b ? a : b), new Date(0));
 
-    if (this.predictionMode === 'A') {
-      const timeslotAggregates = this.aggregateByDayAndTimeslot(filteredData);
-      predictedTimeslots = this.predictFuture(timeslotAggregates, targetDate);
-    } else {
-      const timeslotAggregates = this.aggregateByTimeslot(filteredData);
-      predictedTimeslots = this.predictFutureUnified(timeslotAggregates);
+    if (new Date(targetDate) <= maxDate) {
+      throw new BadRequestException(
+        'You can only predict for future dates after your latest historical data.',
+      );
     }
 
-    const testDates = filteredData.slice(-5).map((entry: any) => entry.date);
+    // Selección de agregador según opción
+    let timeslotAggregates: any;
+    if (this.aggregationOption === 'A') {
+      // Opción A: separar por día de la semana
+      const dayOfWeek = new Date(targetDate).getDay();
+      const allAggregates = aggregateByDayAndTimeslotWithDate(filteredData);
+      timeslotAggregates = allAggregates[dayOfWeek] || {};
+    } else {
+      // Opción B: unificar todos los días
+      timeslotAggregates = aggregateByTimeslotWithDate(filteredData);
+    }
 
-    const { maeA, maeB, mapeA, mapeB } = this.evaluateMAE(
-      activityId,
-      cityId,
-      venueId,
-      testDates,
+    const predictedTimeslots = this.strategy.predict(
+      timeslotAggregates,
+      targetDate,
     );
 
-    console.log(`MAE for Option A: ${maeA}, MAE for Option B: ${maeB}`);
-    console.log(`MAPE for Option A: ${mapeA}%, MAPE for Option B: ${mapeB}%`);
+    // Evaluación rápida (últimos 20% de días como test)
+    const testSize = Math.floor(filteredData.length * 0.2);
+    const testDates = filteredData
+      .slice(-testSize)
+      .map((entry: any) => entry.date);
+    const trainData = filteredData.filter(
+      (entry: any) => !testDates.includes(entry.date),
+    );
+    const testData = filteredData.filter((entry: any) =>
+      testDates.includes(entry.date),
+    );
+
+    // Agregación para test según opción
+    let testAggregates: any;
+    if (this.aggregationOption === 'A') {
+      const dayOfWeek = new Date(targetDate).getDay();
+      const allAggregates = aggregateByDayAndTimeslotWithDate(trainData);
+      testAggregates = allAggregates[dayOfWeek] || {};
+    } else {
+      testAggregates = aggregateByTimeslotWithDate(trainData);
+    }
+
+    let allReal: number[] = [];
+    let allPred: number[] = [];
+    for (const testEntry of testData) {
+      const realTimeslots = testEntry.timeslots;
+
+      const predicted = this.strategy.predict(testAggregates, testEntry.date);
+      const { real, predicted: pred } = this.alignTimeslots(
+        realTimeslots,
+        predicted,
+      );
+      allReal = allReal.concat(real);
+      allPred = allPred.concat(pred);
+    }
+
+    const mae = calculateMAE(allReal, allPred);
+    const mape = calculateMAPE(allReal, allPred);
+
+    // MAE: Mean Absolute Error
+    console.log(
+      `Mean absolute error (${this.aggregationOption}): ${mae.toFixed(2)}`,
+    );
+    // MAPE: Mean Absolute Percentage Error
+    console.log(
+      `Mean absolute percentage error (${this.aggregationOption}): ${mape.toFixed(2)}%`,
+    );
 
     return {
       date: targetDate,
@@ -51,88 +114,11 @@ export class ForecastingService {
       venue: venueId,
       city: cityId,
       predictedTimeslots,
+      mae,
+      mape,
     };
   }
 
-  private calculateMAPE(real: number[], predicted: number[]): number {
-    if (real.length !== predicted.length || real.length === 0) return NaN;
-    const sum = real.reduce(
-      (acc, val, idx) => acc + Math.abs((val - predicted[idx]) / (val || 1)),
-      0,
-    );
-    return (sum / real.length) * 100;
-  }
-
-  // Método para evaluar el MAE de ambas opciones
-  public evaluateMAE(
-    activityId: string,
-    cityId: string,
-    venueId: string,
-    testDates: string[],
-  ): { maeA: number; maeB: number; mapeA: number; mapeB: number } {
-    const historicalData = this.fileReader.getDataByDatePrefix('availability-');
-    const filteredData = historicalData.filter(
-      (entry) =>
-        entry.activityId === activityId &&
-        entry.city === cityId &&
-        entry.venue === venueId,
-    );
-
-    // Datos de entrenamiento (excluye los testDates)
-    const trainData = filteredData.filter(
-      (entry) => !testDates.includes(entry.date),
-    );
-    // Datos de prueba (solo los testDates)
-    const testData = filteredData.filter((entry) =>
-      testDates.includes(entry.date),
-    );
-
-    // Opción A
-    const timeslotAggregatesA = this.aggregateByDayAndTimeslot(trainData);
-    let allRealA: number[] = [];
-    let allPredA: number[] = [];
-    for (const testEntry of testData) {
-      const targetDate = testEntry.date;
-      const realTimeslots = testEntry.timeslots;
-      const predictedTimeslots = this.predictFuture(
-        timeslotAggregatesA,
-        targetDate,
-      );
-      const { real, predicted } = this.alignTimeslots(
-        realTimeslots,
-        predictedTimeslots,
-      );
-      allRealA = allRealA.concat(real);
-      allPredA = allPredA.concat(predicted);
-    }
-    const maeA = this.calculateMAE(allRealA, allPredA);
-    const mapeA = this.calculateMAPE(allRealA, allPredA);
-
-    // Opción B
-    const timeslotAggregatesB = this.aggregateByTimeslot(trainData);
-    let allRealB: number[] = [];
-    let allPredB: number[] = [];
-    for (const testEntry of testData) {
-      const realTimeslots = testEntry.timeslots;
-      const predictedTimeslots = this.predictFutureUnified(timeslotAggregatesB);
-      const { real, predicted } = this.alignTimeslots(
-        realTimeslots,
-        predictedTimeslots,
-      );
-      allRealB = allRealB.concat(real);
-      allPredB = allPredB.concat(predicted);
-    }
-    const maeB = this.calculateMAE(allRealB, allPredB);
-    const mapeB = this.calculateMAPE(allRealB, allPredB);
-
-    // Mostrar en consola
-    console.log(`MAE for Option A: ${maeA}, MAE for Option B: ${maeB}`);
-    console.log(`MAPE for Option A: ${mapeA}%, MAPE for Option B: ${mapeB}%`);
-
-    return { maeA, maeB, mapeA, mapeB };
-  }
-
-  // Alinea los arrays de franjas reales y predichas por 'time'
   private alignTimeslots(
     realTimeslots: { time: string; quantity: number }[],
     predictedTimeslots: { time: string; quantity: number }[],
@@ -147,97 +133,5 @@ export class ForecastingService {
       }
     }
     return { real, predicted };
-  }
-
-  // Calcula el Mean Absolute Error (MAE)
-  private calculateMAE(real: number[], predicted: number[]): number {
-    if (real.length !== predicted.length || real.length === 0) return NaN;
-    const sum = real.reduce(
-      (acc, val, idx) => acc + Math.abs(val - predicted[idx]),
-      0,
-    );
-    return sum / real.length;
-  }
-
-  // Opción A: Agrupar por día de la semana y franja horaria
-  private aggregateByDayAndTimeslot(
-    data: any[],
-  ): Record<string, Record<string, number[]>> {
-    const timeslotAggregates: Record<string, Record<string, number[]>> = {};
-    for (const entry of data) {
-      const date = new Date(entry.date);
-      const dayOfWeek = date.getDay();
-      for (const timeslot of entry.timeslots) {
-        if (!timeslotAggregates[dayOfWeek]) {
-          timeslotAggregates[dayOfWeek] = {};
-        }
-        if (!timeslotAggregates[dayOfWeek][timeslot.time]) {
-          timeslotAggregates[dayOfWeek][timeslot.time] = [];
-        }
-        timeslotAggregates[dayOfWeek][timeslot.time].push(timeslot.quantity);
-      }
-    }
-    return timeslotAggregates;
-  }
-
-  // Opción B: Unificar todos los datos por franja horaria
-  private aggregateByTimeslot(data: any[]): Record<string, number[]> {
-    const timeslotAggregates: Record<string, number[]> = {};
-    for (const entry of data) {
-      for (const timeslot of entry.timeslots) {
-        if (!timeslotAggregates[timeslot.time]) {
-          timeslotAggregates[timeslot.time] = [];
-        }
-        timeslotAggregates[timeslot.time].push(timeslot.quantity);
-      }
-    }
-    return timeslotAggregates;
-  }
-
-  // Opción A: Predicción separando por día de la semana
-  private predictFuture(
-    timeslotAggregates: Record<string, Record<string, number[]>>,
-    targetDate: string,
-  ): any[] {
-    const predictions = [];
-    const targetDayOfWeek = new Date(targetDate).getDay();
-    const dayAggregates = timeslotAggregates[targetDayOfWeek] || {};
-    for (const [time, quantities] of Object.entries(dayAggregates)) {
-      const predictedQuantity = this.linearRegression(quantities);
-      predictions.push({ time, quantity: predictedQuantity });
-    }
-    return predictions;
-  }
-
-  // Opción B: Predicción unificada
-  private predictFutureUnified(
-    timeslotAggregates: Record<string, number[]>,
-  ): any[] {
-    const predictions = [];
-    for (const [time, quantities] of Object.entries(timeslotAggregates)) {
-      const predictedQuantity = this.linearRegression(quantities);
-      predictions.push({ time, quantity: predictedQuantity });
-    }
-    return predictions;
-  }
-
-  // Utilidad: Regresión lineal simple
-  private linearRegression(quantities: number[]): number {
-    const n = quantities.length;
-    if (n === 0) return 0;
-    const x = Array.from({ length: n }, (_, i) => i + 1);
-    const y = quantities;
-    const meanX = x.reduce((sum, xi) => sum + xi, 0) / n;
-    const meanY = y.reduce((sum, yi) => sum + yi, 0) / n;
-    const numerator = x.reduce(
-      (sum, xi, i) => sum + (xi - meanX) * (y[i] - meanY),
-      0,
-    );
-    const denominator = x.reduce((sum, xi) => sum + Math.pow(xi - meanX, 2), 0);
-    const slope = denominator === 0 ? 0 : numerator / denominator;
-    const intercept = meanY - slope * meanX;
-    const nextX = n + 1;
-    const predictedY = slope * nextX + intercept;
-    return Math.round(predictedY);
   }
 }
