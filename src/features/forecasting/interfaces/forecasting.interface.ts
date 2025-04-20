@@ -1,4 +1,4 @@
-import { Timeslot } from '@features/availability/interfaces/availability.interface';
+import { Timeslot } from '@common/interfaces/interfaces';
 
 export interface Forecasting {
   date: string;
