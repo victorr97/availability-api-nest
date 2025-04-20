@@ -36,23 +36,88 @@ export class AvailabilityController {
   @ApiResponse({
     status: 200,
     description: 'Successfully fetched availability data.',
+    content: {
+      'application/json': {
+        example: [
+          {
+            date: '2025-04-08',
+            activityId: 'a969d9f6-f7d6-43d1-9a36-02de49b7bce3',
+            venue: 'f3067eb5-9435-4a84-a6b5-3c0b4a9f18cf',
+            city: '5ff8e5f2-98d9-4321-8ae4-3f6c48c7f8d9',
+            timeslots: [
+              { time: '08:00', quantity: 120 },
+              { time: '08:30', quantity: 110 },
+            ],
+          },
+          {
+            date: '2025-04-09',
+            activityId: 'a969d9f6-f7d6-43d1-9a36-02de49b7bce3',
+            venue: 'f3067eb5-9435-4a84-a6b5-3c0b4a9f18cf',
+            city: '5ff8e5f2-98d9-4321-8ae4-3f6c48c7f8d9',
+            timeslots: [
+              { time: '08:00', quantity: 100 },
+              { time: '08:30', quantity: 90 },
+            ],
+          },
+        ],
+      },
+    },
   })
   @ApiResponse({
     status: 400,
     description:
       'Invalid request. Please ensure the "start" and "end" parameters are provided, valid, and in the correct format (YYYY-MM-DD).',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 400,
+          message:
+            'Both start and end dates are required. Please provide them in the format YYYY-MM-DD.',
+          error: 'Bad Request',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 404,
     description: 'No availability data found for the given date range.',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 404,
+          message:
+            'No availability data was found for the specified date range. Please try a different range.',
+          error: 'Not Found',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 422,
     description: 'The provided date range is invalid or out of bounds.',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 422,
+          message: 'The provided date range is invalid or out of bounds.',
+          error: 'Unprocessable Entity',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 500,
     description: 'An unexpected error occurred on the server.',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 500,
+          message:
+            'An unexpected error occurred while processing your request. Please try again later.',
+          error: 'Internal Server Error',
+        },
+      },
+    },
   })
   public getAvailabilityByDate(@Query() query: AvailabilityQueryDto) {
     const { start, end } = query;
