@@ -41,15 +41,15 @@ export class ForecastingService {
     targetDate: string,
   ): Promise<Forecasting & { mae: number; mape: number }> {
     // Validate that the provided UUIDs exist in the allowed lists
-    if (!CITY_UUIDS.includes(cityId)) {
+    if (!(cityId in CITY_UUIDS)) {
       throw new NotFoundException(`City with UUID '${cityId}' does not exist.`);
     }
-    if (!VENUE_UUIDS.includes(venueId)) {
+    if (!(venueId in VENUE_UUIDS)) {
       throw new NotFoundException(
         `Venue with UUID '${venueId}' does not exist.`,
       );
     }
-    if (!ACTIVITY_UUIDS.includes(activityId)) {
+    if (!(activityId in ACTIVITY_UUIDS)) {
       throw new NotFoundException(
         `Activity with UUID '${activityId}' does not exist.`,
       );

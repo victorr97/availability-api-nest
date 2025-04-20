@@ -25,9 +25,9 @@ describe('ForecastingService', () => {
   it('should throw NotFoundException for invalid cityId', async () => {
     await expect(
       service.predictAvailability(
-        ACTIVITY_UUIDS[0],
+        Object.keys(ACTIVITY_UUIDS)[0],
         'invalid-city',
-        VENUE_UUIDS[0],
+        Object.keys(VENUE_UUIDS)[0],
         '2025-05-13',
       ),
     ).rejects.toThrow(NotFoundException);
@@ -36,8 +36,8 @@ describe('ForecastingService', () => {
   it('should throw NotFoundException for invalid venueId', async () => {
     await expect(
       service.predictAvailability(
-        ACTIVITY_UUIDS[0],
-        CITY_UUIDS[0],
+        Object.keys(ACTIVITY_UUIDS)[0],
+        Object.keys(CITY_UUIDS)[0],
         'invalid-venue',
         '2025-05-13',
       ),
@@ -48,8 +48,8 @@ describe('ForecastingService', () => {
     await expect(
       service.predictAvailability(
         'invalid-activity',
-        CITY_UUIDS[0],
-        VENUE_UUIDS[0],
+        Object.keys(CITY_UUIDS)[0],
+        Object.keys(VENUE_UUIDS)[0],
         '2025-05-13',
       ),
     ).rejects.toThrow(NotFoundException);
