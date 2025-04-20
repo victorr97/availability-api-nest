@@ -1,4 +1,4 @@
-import { IsUUID, IsNotEmpty } from 'class-validator';
+import { IsUUID, IsNotEmpty, IsDateString } from 'class-validator';
 
 export class ForecastingQueryDto {
   @IsUUID()
@@ -12,4 +12,8 @@ export class ForecastingQueryDto {
   @IsUUID()
   @IsNotEmpty()
   venueId: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  targetDate: string;
 }

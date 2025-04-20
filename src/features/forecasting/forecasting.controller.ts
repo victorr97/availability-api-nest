@@ -7,13 +7,13 @@ export class ForecastingController {
   constructor(private readonly forecastingService: ForecastingService) {}
 
   @Get('predict')
-  predictAvailability(@Query() query: ForecastingQueryDto) {
-    const { activityId, cityId, venueId } = query;
+  async predictAvailability(@Query() query: ForecastingQueryDto) {
+    const { activityId, cityId, venueId, targetDate } = query;
 
     // Validate input
-    if (!activityId || !cityId || !venueId) {
+    if (!activityId || !cityId || !venueId || !targetDate) {
       throw new BadRequestException(
-        'activityId, cityId, and venueId are required.',
+        'activityId, cityId, venueId, and targetDate are required.',
       );
     }
 
@@ -22,6 +22,7 @@ export class ForecastingController {
       activityId,
       cityId,
       venueId,
+      targetDate,
     );
   }
 }
