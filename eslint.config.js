@@ -28,7 +28,7 @@ module.exports = [
     },
   },
   {
-    ignores: ['node_modules/**', 'eslint.config.js'], // Ignorar node_modules y eslint.config.js
+    ignores: ['node_modules/**', 'eslint.config.js', 'jest.config.ts'], // Ignorar node_modules y eslint.config.js
   },
   {
     // Add overrides for jest.config.js

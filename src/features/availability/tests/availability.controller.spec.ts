@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AvailabilityController } from 'availability/availability.controller';
-import { AvailabilityService } from 'availability/availability.service';
+import { AvailabilityController } from '@features/availability/availability.controller';
+import { AvailabilityService } from '@features/availability/availability.service';
 import { BadRequestException } from '@nestjs/common';
 
 // Mock data
@@ -60,7 +60,11 @@ describe('AvailabilityController', () => {
   it('should throw BadRequestException if start or end are missing', () => {
     expect(() =>
       controller.getAvailabilityByDate({ start: '', end: '' }),
-    ).toThrow(new BadRequestException('start and end are required'));
+    ).toThrow(
+      new BadRequestException(
+        'Both start and end dates are required. Please provide them in the format YYYY-MM-DD.',
+      ),
+    );
   });
 
   // Validate that a BadRequestException is thrown if start or end are invalid ISO date strings
@@ -71,7 +75,9 @@ describe('AvailabilityController', () => {
         end: '2025-04-10',
       }),
     ).toThrow(
-      new BadRequestException('start and end must be valid ISO date strings'),
+      new BadRequestException(
+        'The start and end dates must be in the format YYYY-MM-DD. Please check your input.',
+      ),
     );
 
     expect(() =>
@@ -80,7 +86,9 @@ describe('AvailabilityController', () => {
         end: 'invalid-date',
       }),
     ).toThrow(
-      new BadRequestException('start and end must be valid ISO date strings'),
+      new BadRequestException(
+        'The start and end dates must be in the format YYYY-MM-DD. Please check your input.',
+      ),
     );
   });
 
@@ -92,7 +100,9 @@ describe('AvailabilityController', () => {
         end: '2025-04-08',
       }),
     ).toThrow(
-      new BadRequestException('start date must be earlier than end date'),
+      new BadRequestException(
+        'The start date must be earlier than the end date. Please adjust your input.',
+      ),
     );
   });
 
