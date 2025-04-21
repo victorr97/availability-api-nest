@@ -98,7 +98,7 @@ export class ForecastingService {
 
     if (filteredData.length > 0) {
       const lastDayTimes = new Set(
-        filteredData[filteredData.length - 1].timeslots.map((t: any) => t.time)
+        filteredData[filteredData.length - 1].timeslots.map((t: any) => t.time),
       );
       predictedTimeslots = predictedTimeslots.filter((p) =>
         lastDayTimes.has(p.time),

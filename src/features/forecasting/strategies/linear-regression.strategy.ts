@@ -23,7 +23,7 @@ export class LinearRegressionStrategy implements ForecastingStrategy {
 
       if (pairs.length === 0) {
         const meanQuantity = Math.round(
-          values.reduce((sum, val) => sum + val.quantity, 0) / values.length
+          values.reduce((sum, val) => sum + val.quantity, 0) / values.length,
         );
         predictions.push({ time, quantity: meanQuantity });
         continue;
