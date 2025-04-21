@@ -30,9 +30,9 @@ describe('MarketingController', () => {
   });
 
   it('should call service.getInsights and return its result', async () => {
-    const query = { prompt: '¿Qué día visitar Barcelona?' };
-    const result = await controller.getInsights(query);
-    expect(service.getInsights).toHaveBeenCalledWith(query);
+    const prompt = '¿Qué día visitar Barcelona?';
+    const result = await controller.getInsights(prompt);
+    expect(service.getInsights).toHaveBeenCalledWith(prompt);
     expect(result).toEqual({ insight: 'Mocked insight' });
   });
 });
