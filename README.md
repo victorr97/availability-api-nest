@@ -1,108 +1,202 @@
 # Availability API
 
-This project is a backend API built with NestJS to manage availability data for a tourism marketplace. It includes features for forecasting, marketing insights, and dynamic pricing suggestions.
+This project is a backend API built with NestJS to manage availability data for a tourism marketplace. It includes features for forecasting, marketing insights, and dynamic pricing suggestions using LLMs (Large Language Models).
+
+---
+
+## 🧠 LLM Options: Bedrock vs Ollama
+
+The project supports two different LLM providers:
+
+- **AWS Bedrock (Claude model)** – Recommended  
+- **Local Ollama container (Mistral model)**
+
+You can choose which provider to use via an environment variable.  
+**Bedrock is recommended** because it offloads computation to the cloud and doesn't consume local resources, making it much more efficient for development and testing.  
+Ollama runs locally but requires downloading a large model (over 5GB) and a powerful machine.
 
 ---
 
 ## 🚀 How to Use the Project with Docker Compose
 
-To ensure there are no compatibility issues with Node.js versions or dependencies, this project is designed to run inside a Docker container using Docker Compose.
+### 🛠️ 1. Configure Environment Variables
 
-### **Prerequisites**
-1. Install **Docker** on your machine. You can download it from [Docker Desktop](https://www.docker.com/products/docker-desktop).
-2. Install **Docker Compose** (comes pre-installed with Docker Desktop).
+Create a `.env` file in the **root** directory of the project with the following variables if using **Bedrock**:
+
+```
+AWS_ACCESS_KEY_ID=***
+AWS_SECRET_ACCESS_KEY=***
+AWS_REGION=***
+BEDROCK_MODEL_ID=***
+LLM_PROVIDER=bedrock
+```
+
+This configuration is required for connecting to the Bedrock Claude model.
 
 ---
 
-### **Steps to Use the Project**
+### ▶️ 2. Start the Project with Bedrock (Recommended)
 
-1. **(Optional) Install dependencies locally**:
-   If you want to use your IDE (like VSCode) with features like IntelliSense, linting, or avoid seeing everything in red due to missing modules, you can run:
-   ```bash
-   npm install
+```bash
+docker compose up
+```
+
+This command will:
+
+- Build and run the API container
+- Connect to the Bedrock LLM provider
+- **Will NOT** download the Ollama container or the Mistral model
+
+---
+
+### 🔍 3. Test the API
+
+You can test the LLM-powered endpoint like this:
+
+```bash
+http://localhost:3002/marketing/insights?prompt=¿Qué horario es el más popular en la Sagrada Familia?
+```
+
+Example response:
+```json
+{
+  "insight": "¡Hola! Como experto en marketing turístico, te recomiendo reservar cuanto antes la Entrada general Sagrada Familia en Barcelona para el 9 de abril de 2025 a las 15:30. ¡Se están agotando las últimas plazas disponibles! La Sagrada Familia está arrasando esta temporada..."
+}
+```
+
+At this point, your API is running and connected to the Bedrock LLM.
+
+---
+
+## 🔄 Switching to Local Ollama (Optional)
+
+If you'd rather test locally with Mistral:
+
+### ⛔️ 1. Stop and Clean the Previous Setup
+
+```bash
+docker compose down
+```
+
+To clean all images (optional, but useful):
+
+```bash
+docker system prune -a
+```
+
+> ⚠️ Warning: `prune -a` will remove **all Docker images**, so only use it if you’re sure. Avoid if using Docker for other projects.
+
+---
+
+### ⚙️ 2. Reconfigure for Ollama
+
+Update your `.env` file:
+
+```
+LLM_PROVIDER=ollama
+```
+
+---
+
+### 🏗️ 3. Start the Project with Ollama
+
+```bash
+docker compose --profile ollama up
+```
+
+This will:
+
+- Start both the API container and the Ollama container
+
+Then, download the Mistral model (only required once):
+
+```bash
+docker compose exec ollama ollama pull mistral
+```
+
+> This may take a while — the model is over 5GB and will consume local resources.
+
+---
+
+### 🧪 4. Test the Local API
+
+Once everything is up, test an endpoint like:
+
+```bash
+http://localhost:3002/marketing/insights?prompt=¿Qué dia del mes de abril me recomiendas visitar Roma?
+```
+
+⚠️ The response time depends on your machine. Expect longer delays with large models.
+
+Example response:
+   ```json
+   {
+     "insight": "¡Amigo viajero, para ti es la oportunidad perfecta! El día recomendado para tu visita turística a Roma sería el 9 de abril de este año, más específicamente a las 13:00. Ese día hay un total de 493 entradas disponibles en nuestra popular visita guiada Coliseo + Foro..."
+   }
    ```
-   This step is optional and only useful if you want a better developer experience inside your local editor. The dependencies will also be installed inside the Docker container, so you can skip this step if you're only running the app via Docker.
-
-
-2. **Start the container:**
-   Run the following command to build and start the container:
-   ```bash
-   docker compose up
-   ```
-   This will start the marketplace-api container and expose the API on port 3002.
-
-3. **Test the endpoint:**
-   Once the container is running, you can test the API using the following example endpoint:
-   ```bash
-   http://localhost:3002/availability/by-date?start=2025-04-08&end=2025-04-10
-   ```
-   - The API will be accessible at http://localhost:3002.
-   - Swagger documentation is available at http://localhost:3002/api.
-
-4. **Stop the container:**
-   To stop the container, run:
-   ```bash
-   docker compose down
-   ```
+---
 
 ## 🧹 Code Quality
 
 ### **Linting**
-
-Run the linter to check for code issues:
-
 ```bash
 npm run lint
 ```
 
 ### **Fix Linting Issues**
-
-Automatically fix linting issues:
 ```bash
 npm run lint:fix
 ```
 
 ### **Check Formatting**
-
-Verify code formatting with Prettier:
 ```bash
 npm run prettier:check
 ```
 
+---
+
 ## 🧪 Testing
 
 ### **Run Tests**
-Execute all tests:
 ```bash
-npm run test
+npm run test:unit
 ```
 
 ### **Watch Tests**
-Run tests in watch mode:
 ```bash
 npm run test:watch
 ```
 
 ### **Test Coverage**
-Generate a test coverage report:
 ```bash
 npm run test:cov
 ```
 
+---
+
 ## 🧹 Clean the Project
-Remove the dist folder:
 ```bash
 npm run clean
 ```
 
+---
+
 ## 📄 API Documentation
+
 The API documentation is automatically generated using Swagger. Once the server is running, you can access it at:
 
 - Swagger UI: http://localhost:3002/api
 
+Here, you'll be able to browse and interact with all available API endpoints, including their HTTP methods, parameters, expected responses, and example requests. It's a powerful tool for exploring and testing the backend functionality.
+
+---
+
 ## 📋 Important Notes
-The project exposes port 3002. If you need to change it, update the docker-compose.yml file and the ports section.
+
+The project exposes port 3002. If you need to change it, update the `docker-compose.yml` file and the ports section.  
 Ensure that port 3002 is not being used by another service on your machine.
+
+if you are using Ollama as your LLM provider, note that in addition to port 3002 used by the main API, the Ollama container exposes port 11434, so make sure that no other services on your machine are using that port to avoid conflicts.
 
 ---
 
@@ -136,14 +230,16 @@ GET /availability/by-date?start=YYYY-MM-DD&end=YYYY-MM-DD
 This endpoint returns a list of availability records for a given date range.
 
 - A folder `/data/` containing **46 JSON files** simulating availability:
-- 30 days into the future
-- 10 historical days
-- 6 updates from "today"
+  - 30 days into the future
+  - 10 historical days
+  - 6 updates from "today"
 
 - A README file including UUID mappings for:
-- `city`
-- `venue`
-- `activity`
+  - `city`
+  - `venue`
+  - `activity`
+
+---
 
 ## 🏙️ City UUIDs
 

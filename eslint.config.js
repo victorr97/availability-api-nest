@@ -28,7 +28,12 @@ module.exports = [
     },
   },
   {
-    ignores: ['node_modules/**', 'eslint.config.js', 'jest.config.ts'], // Ignorar node_modules y eslint.config.js
+    ignores: [
+      'node_modules/**',
+      'eslint.config.js',
+      'jest.config.ts',
+      'jest.integration.config.ts',
+    ],
   },
   {
     // Add overrides for jest.config.js
@@ -43,6 +48,21 @@ module.exports = [
     rules: {
       '@typescript-eslint/no-var-requires': 'off', // Allow require statements
       '@typescript-eslint/no-unused-vars': 'off', // Disable unused vars for JS
+    },
+  },
+  {
+    // Add overrides for jest.integration.config.ts
+    files: ['jest.integration.config.ts'],
+    languageOptions: {
+      parser: 'espree',
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'script',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-var-requires': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
 ];
