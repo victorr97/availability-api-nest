@@ -188,7 +188,7 @@ npm run clean
 
 ## 📄 API Documentation
 
-The API documentation is automatically generated using Swagger. Once the server is running, you can access it at:
+Full API documentation (including all endpoints, parameters, and example responses) is available via Swagger once the server is running:
 
 - Swagger UI: http://localhost:3002/api
 

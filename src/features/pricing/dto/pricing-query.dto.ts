@@ -6,11 +6,11 @@ export class PricingQueryDto {
   @IsString()
   activityId: string;
 
-  @ApiProperty({ example: '2025-04-01' })
+  @ApiProperty({ example: '2025-03-30' })
   @IsString()
   startDate: string;
 
-  @ApiProperty({ example: '2025-04-03' })
+  @ApiProperty({ example: '2025-04-05' })
   @IsString()
   endDate: string;
 }

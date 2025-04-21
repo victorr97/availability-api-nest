@@ -4,6 +4,13 @@ import {
   PricingSuggestionResult,
   TimeslotPricingSuggestion,
 } from '@features/pricing/interfaces/pricing.interface';
+import {
+  getDecreaseThreshold,
+  getIncreaseThreshold,
+} from '@features/pricing/utils/pricing-thresholds.util';
+import { calculateTrend } from '@features/pricing/utils/pricing-trend.util';
+import { calculateComparative } from '@features/pricing/utils/pricing-comparative.util';
+import { getReason } from '@features/pricing/utils/pricing-reason.util';
 
 @Injectable()
 export class PricingService {
@@ -11,24 +18,6 @@ export class PricingService {
 
   // All events are assumed to end on 2025-05-09
   private readonly eventEndDate = new Date('2025-05-09');
-
-  // Calculates the low demand threshold dynamically based on days left until event end
-  private getDecreaseThreshold(daysLeft: number): number {
-    // Starts at 10% if 40 days left, increases to 40% if only 1 day left
-    const min = 0.1;
-    const max = 0.4;
-    const cappedDays = Math.max(Math.min(daysLeft, 40), 1);
-    return min + ((max - min) * (40 - cappedDays)) / 39;
-  }
-
-  // Calculates the high demand threshold dynamically based on days left until event end
-  private getIncreaseThreshold(daysLeft: number): number {
-    // Starts at 40% if 40 days left, increases to 70% if only 1 day left
-    const min = 0.4;
-    const max = 0.7;
-    const cappedDays = Math.max(Math.min(daysLeft, 40), 1);
-    return min + ((max - min) * (40 - cappedDays)) / 39;
-  }
 
   /**
    * Lógica de sugerencia de precios:
@@ -86,7 +75,7 @@ export class PricingService {
         ),
       );
 
-      // Calculate the number of days analyzed
+      // Calculate the number of days analyzed (only log)
       const daysAnalyzed = Math.max(
         1,
         Math.ceil(
@@ -96,15 +85,16 @@ export class PricingService {
       );
 
       // Adjust thresholds based on days left until event end
-      const decreaseThreshold = this.getDecreaseThreshold(daysLeft);
-      const increaseThreshold = this.getIncreaseThreshold(daysLeft);
+      const decreaseThreshold = getDecreaseThreshold(daysLeft);
+      const increaseThreshold = getIncreaseThreshold(daysLeft);
 
       console.log(
         `[Pricing] daysAnalyzed: ${daysAnalyzed}, daysLeft: ${daysLeft}, decreaseThreshold: ${(decreaseThreshold * 100).toFixed(1)}%, increaseThreshold: ${(increaseThreshold * 100).toFixed(1)}%`,
       );
 
       // Map timeslots by hour
-      const timeslotMap: Record<string, { initial: number; final: number }> = {};
+      const timeslotMap: Record<string, { initial: number; final: number }> =
+        {};
       for (const slot of startActivity.timeslots) {
         timeslotMap[slot.time] = { initial: slot.quantity, final: 0 };
       }
@@ -139,53 +129,7 @@ export class PricingService {
         const stockRatio =
           initial > 0 ? Math.max(0, Math.min(1, final / initial)) : 0;
 
-        let suggestPriceIncrease = false;
-        let suggestPriceDecrease = false;
-        let reason = 'Normal demand';
-
-        // If there was restock or capacity increase
-        if (final > initial) {
-          suggestPriceIncrease = false;
-          suggestPriceDecrease = true;
-          reason =
-            'Stock increased during period (restock or capacity increase)';
-        } else {
-          // If 7 days or less left, only suggest price increase if <10% stock left
-          if (daysLeft <= 7) {
-            if (stockRatio <= 0.1) {
-              suggestPriceIncrease = true;
-              reason = `Very high demand: only ${Math.round(
-                stockRatio * 100,
-              )}% stock left with ${daysLeft} days to go`;
-            } else if (stockRatio > 0.3) {
-              suggestPriceDecrease = true;
-              reason = `Low demand: still ${Math.round(
-                stockRatio * 100,
-              )}% stock left with only ${daysLeft} days to go`;
-            }
-          } else {
-            // Normal logic for longer periods
-            if (soldRatio >= increaseThreshold) {
-              suggestPriceIncrease = true;
-              reason = `High demand: ${Math.round(
-                soldRatio * 100,
-              )}% sold in period`;
-            } else if (soldRatio <= decreaseThreshold && initial > 0) {
-              suggestPriceDecrease = true;
-              reason = `Low demand: only ${Math.round(
-                soldRatio * 100,
-              )}% sold in period`;
-            }
-          }
-        }
-
-        // Cálculo de tendencia de ventas (trend)
-        // "trend" se calcula dividiendo el periodo analizado en dos mitades:
-        // - soldFirstHalf: entradas vendidas desde el inicio hasta la mitad del periodo
-        // - soldSecondHalf: entradas vendidas desde la mitad hasta el final del periodo
-        // Si soldSecondHalf > soldFirstHalf => 'Accelerating' (las ventas se aceleran)
-        // Si soldSecondHalf < soldFirstHalf => 'Slowing down' (las ventas se frenan)
-        // Si son iguales => 'Constant' (ventas constantes)
+        // Calculate trend (ventas acelerando, frenando o constantes)
         let mid = 0;
         if (midActivity) {
           const midSlot = midActivity.timeslots.find(
@@ -193,31 +137,40 @@ export class PricingService {
           );
           if (midSlot) mid = midSlot.quantity;
         }
-        const soldFirstHalf = initial - mid;
-        const soldSecondHalf = mid - final;
-        let trend = '';
-        if (final === 0) {
-          trend = '';
-        } else if (soldSecondHalf > soldFirstHalf) {
-          trend = 'Accelerating';
-        } else if (soldSecondHalf < soldFirstHalf) {
-          trend = 'Slowing down';
-        } else {
-          trend = 'Constant';
-        }
+        const trend = calculateTrend(initial, mid, final);
 
-        // Análisis comparativo del timeslot (comparative)
-        // "comparative" compara el ratio vendido de este timeslot respecto a la media:
-        // - Si soldRatio > avgSoldRatio * 1.2 => 'Hot timeslot' (demanda mucho mayor que la media)
-        // - Si soldRatio < avgSoldRatio * 0.8 => 'Cold timeslot' (demanda mucho menor que la media)
-        // - En otro caso => 'Normal timeslot'
-        let comparative = '';
-        if (soldRatio > avgSoldRatio * 1.2) {
-          comparative = 'Hot timeslot';
-        } else if (soldRatio < avgSoldRatio * 0.8) {
-          comparative = 'Cold timeslot';
+        // Calculate comparative (hot/cold/normal timeslot)
+        const comparative = calculateComparative(soldRatio, avgSoldRatio);
+
+        // Calculate reason and price suggestion
+        const reason = getReason(
+          daysLeft,
+          stockRatio,
+          soldRatio,
+          increaseThreshold,
+          decreaseThreshold,
+          initial,
+          final,
+        );
+
+        let suggestPriceIncrease = false;
+        let suggestPriceDecrease = false;
+
+        if (final > initial) {
+          suggestPriceIncrease = false;
+          suggestPriceDecrease = true;
+        } else if (daysLeft <= 7) {
+          if (stockRatio <= 0.1) {
+            suggestPriceIncrease = true;
+          } else if (stockRatio > 0.3) {
+            suggestPriceDecrease = true;
+          }
         } else {
-          comparative = 'Normal timeslot';
+          if (soldRatio >= increaseThreshold) {
+            suggestPriceIncrease = true;
+          } else if (soldRatio <= decreaseThreshold && initial > 0) {
+            suggestPriceDecrease = true;
+          }
         }
 
         return {
