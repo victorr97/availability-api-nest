@@ -1,3 +1,7 @@
+/**
+ * Aggregates data by timeslot, grouping all quantities for each timeslot across dates.
+ * Returns an object where each key is a timeslot (e.g., "10:00") and the value is an array of { date, quantity }.
+ */
 export function aggregateByTimeslotWithDate(
   data: any[],
 ): Record<string, { date: string; quantity: number }[]> {
@@ -19,6 +23,11 @@ export function aggregateByTimeslotWithDate(
   return timeslotAggregates;
 }
 
+/**
+ * Aggregates data by day of week and timeslot.
+ * Returns an object where each key is a day of week (0=Sunday, 6=Saturday),
+ * and each value is an object mapping timeslot to an array of { date, quantity }.
+ */
 export function aggregateByDayAndTimeslotWithDate(
   data: any[],
 ): Record<number, Record<string, { date: string; quantity: number }[]>> {

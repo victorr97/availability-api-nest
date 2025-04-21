@@ -19,10 +19,12 @@ describe('ForecastingService', () => {
   });
 
   it('should be defined', () => {
+    // Checks that the service is properly instantiated
     expect(service).toBeDefined();
   });
 
   it('should throw NotFoundException for invalid cityId', async () => {
+    // Ensures that an invalid cityId triggers a NotFoundException
     await expect(
       service.predictAvailability(
         Object.keys(ACTIVITY_UUIDS)[0],
@@ -34,6 +36,7 @@ describe('ForecastingService', () => {
   });
 
   it('should throw NotFoundException for invalid venueId', async () => {
+    // Ensures that an invalid venueId triggers a NotFoundException
     await expect(
       service.predictAvailability(
         Object.keys(ACTIVITY_UUIDS)[0],
@@ -45,6 +48,7 @@ describe('ForecastingService', () => {
   });
 
   it('should throw NotFoundException for invalid activityId', async () => {
+    // Ensures that an invalid activityId triggers a NotFoundException
     await expect(
       service.predictAvailability(
         'invalid-activity',

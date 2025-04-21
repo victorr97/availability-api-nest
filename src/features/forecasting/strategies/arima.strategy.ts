@@ -12,7 +12,7 @@ export class ArimaStrategy implements ForecastingStrategy {
     for (const [time, values] of Object.entries(timeslotAggregates)) {
       if (!values.length) continue;
 
-      // Ordena y filtra valores válidos
+      // Sort by date and filter out invalid or negative quantities
       const sorted = values
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
         .filter(
@@ -24,7 +24,7 @@ export class ArimaStrategy implements ForecastingStrategy {
 
       const y = sorted.map((v) => v.quantity);
 
-      // Si hay menos de 5 valores o todos son iguales, usa la media
+      // If there are less than 5 values or all values are equal, use the mean as prediction
       const allEqual = y.length > 0 && y.every((val) => val === y[0]);
       if (y.length < 5 || allEqual) {
         predictions.push({
@@ -36,18 +36,20 @@ export class ArimaStrategy implements ForecastingStrategy {
         continue;
       }
 
-      // Calcula cuántos días hay entre el último dato y el targetDate
+      // Calculate the number of days between the last data point and the target date
       const lastDate = new Date(sorted[sorted.length - 1].date);
       const horizon = Math.round(
         (targetTimestamp - lastDate.getTime()) / (1000 * 60 * 60 * 24),
       );
 
+      // If the target date is not in the future, skip prediction
       if (horizon <= 0) continue;
 
-      // ARIMA(p,d,q) parámetros básicos, puedes tunearlos si lo deseas
+      // Train ARIMA(p,d,q) model (basic parameters, can be tuned)
       const arima = new ARIMA({ p: 2, d: 1, q: 2 }).train(y);
       const [forecast] = arima.predict(horizon);
 
+      // Use the last forecasted value as the prediction for the target date
       predictions.push({
         time,
         quantity: Math.max(0, Math.round(forecast[forecast.length - 1])),

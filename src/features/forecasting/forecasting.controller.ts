@@ -188,7 +188,8 @@ export class ForecastingController {
       );
     }
 
-    // Validar coherencia ciudad-venue-actividad
+    // Validate city-venue-activity mapping
+    // Check if the cityId, venueId, and activityId are valid UUIDs
     const cityName = CITY_UUIDS[cityId as keyof typeof CITY_UUIDS];
     if (!cityName) {
       throw new BadRequestException('Invalid cityId.');
@@ -212,7 +213,7 @@ export class ForecastingController {
       );
     }
 
-    // Call the service to get the prediction
+    // All validations passed, call the service to get the prediction
     return this.forecastingService.predictAvailability(
       activityId,
       cityId,
