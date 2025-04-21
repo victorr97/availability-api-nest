@@ -157,9 +157,14 @@ npm run prettier:check
 
 ## 🧪 Testing
 
-### **Run Tests**
+### **Run Unit Tests**
 ```bash
 npm run test:unit
+```
+
+### **Run Integration Tests**
+```bash
+npm run test:integration
 ```
 
 ### **Watch Tests**
