@@ -1,6 +1,5 @@
 import { extractFiltersFromPrompt } from './extractFiltersFromPrompt';
-import { isMaxAvailabilityPrompt, isBestDayPrompt } from './promptDetectors';
-import { Slot } from './slotTypes';
+import { Slot } from '@features/marketing/utils/context/slotTypes';
 import {
   getActivitiesWithLowAvailability,
   getTrendingCities,
@@ -9,6 +8,10 @@ import {
   getBestDayAvailability,
   loadData,
 } from '@features/marketing/utils/marketing.data';
+import {
+  isBestDayPrompt,
+  isMaxAvailabilityPrompt,
+} from '@features/marketing/utils/context/promptDetectors';
 
 const normalize = (text: string) =>
   text

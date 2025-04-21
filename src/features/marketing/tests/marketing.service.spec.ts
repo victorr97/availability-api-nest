@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MarketingService } from '../marketing.service';
+import { MarketingService } from '@features/marketing/marketing.service';
 
 jest.mock('@features/marketing/utils/context/buildMarketingContext', () => ({
   buildMarketingContext: jest.fn().mockReturnValue('mocked context'),
