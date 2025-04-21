@@ -1,42 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import {
-  BedrockAgentRuntimeClient,
-  RetrieveAndGenerateCommand,
-  RetrieveAndGenerateCommandInput,
-} from '@aws-sdk/client-bedrock-agent-runtime';
-import { getMarketingPrompt } from '@features/marketing/utils/marketing.prompt';
+import { buildMarketingContext } from '@features/marketing/utils/context/buildMarketingContext';
+import { getSystemPrompt } from '@features/marketing/utils/marketing.prompt';
+import { askOllama } from '@features/marketing/utils/clients/ollama-client';
+import { askBedrock } from '@features/marketing/utils/clients/bedrock-client';
 
 @Injectable()
 export class MarketingService {
-  private bedrock = new BedrockAgentRuntimeClient({
-    region: process.env.AWS_REGION,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
-  });
-
-  async getInsights(query: any) {
+  async getInsights(query: { prompt: string }) {
     try {
-      const userPrompt = getMarketingPrompt(query.prompt);
+      const context = buildMarketingContext(query.prompt);
+      const systemPrompt = getSystemPrompt();
 
-      const input: RetrieveAndGenerateCommandInput = {
-        input: { text: userPrompt },
-        retrieveAndGenerateConfiguration: {
-          type: 'KNOWLEDGE_BASE',
-          knowledgeBaseConfiguration: {
-            knowledgeBaseId: process.env.BEDROCK_KB_ID as string,
-            modelArn: process.env.BEDROCK_MODEL_ARN as string,
-          },
-        },
-      };
+      console.log('--- CONTEXTO ENVIADO AL LLM ---');
+      console.log('System Prompt:', systemPrompt);
+      console.log('User Prompt:', query.prompt);
+      console.log('Context:', context);
 
-      const command = new RetrieveAndGenerateCommand(input);
-      const response = await this.bedrock.send(command);
+      let response: string;
 
-      return { insight: response.output?.text || 'Sin respuesta de la KB.' };
+      const provider = process.env.LLM_PROVIDER || 'ollama';
+
+      if (provider === 'bedrock') {
+        response = await askBedrock({
+          model:
+            process.env.BEDROCK_MODEL_ID ||
+            'anthropic.claude-3-sonnet-20240229-v1:0',
+          systemPrompt,
+          userPrompt: `${context}\n\n${query.prompt}`,
+        });
+      } else {
+        response = await askOllama({
+          model: 'mistral',
+          systemPrompt,
+          userPrompt: `${context}\n\n${query.prompt}`,
+        });
+      }
+
+      return { insight: response };
     } catch (error) {
-      console.error('Bedrock KB error:', error);
+      console.error('--- ERROR EN getInsights ---');
+      console.error(error);
       throw error;
     }
   }
