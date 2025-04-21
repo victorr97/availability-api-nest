@@ -51,8 +51,11 @@ export class PricingService {
     endDate: string,
   ): PricingSuggestionResult {
     try {
-      const startData = this.fileReader.getDataByDatePrefix(startDate);
-      const endData = this.fileReader.getDataByDatePrefix(endDate);
+      const fileNameStart = `availability-${startDate.replace(/-/g, '')}.json`;
+      const fileNameEnd = `availability-${endDate.replace(/-/g, '')}.json`;
+
+      const startData = this.fileReader.getDataByDatePrefix(fileNameStart);
+      const endData = this.fileReader.getDataByDatePrefix(fileNameEnd);
 
       const startActivity = startData.find((d) => d.activityId === activityId);
       const endActivity = endData.find((d) => d.activityId === activityId);

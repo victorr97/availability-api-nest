@@ -32,9 +32,9 @@ async function bootstrap() {
 
   // Start the application
   await app.listen(3002);
-  console.log('🚀 Server is running on http://localhost:3002');
+  console.log('🚀 [Main] Server is running on http://localhost:3002');
   console.log(
-    '📄 Swagger documentation is available at http://localhost:3002/api',
+    '📄 [Main] Swagger documentation is available at http://localhost:3002/api',
   );
 }
 bootstrap();

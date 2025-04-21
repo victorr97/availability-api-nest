@@ -45,4 +45,7 @@ export function exportMergedAvailability() {
   const outputPath = path.join(dataDir, 'availability-merged.json');
   fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2), 'utf-8');
   console.log('Archivo availability-merged.json generado correctamente.');
+  console.log(
+    '[UUIDsMapping] Archivo availability-merged.json generado correctamente.',
+  );
 }

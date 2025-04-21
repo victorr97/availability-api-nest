@@ -12,9 +12,8 @@ export class MarketingService {
       const systemPrompt = getSystemPrompt();
 
       console.log('--- CONTEXTO ENVIADO AL LLM ---');
-      console.log('System Prompt:', systemPrompt);
-      console.log('User Prompt:', query.prompt);
-      console.log('Context:', context);
+      console.log('[Marketing] User Prompt:', query.prompt);
+      console.log('[Marketing] Context:', context);
 
       let response: string;
 
@@ -38,8 +37,8 @@ export class MarketingService {
 
       return { insight: response };
     } catch (error) {
-      console.error('--- ERROR EN getInsights ---');
-      console.error(error);
+      console.error('[Marketing] --- ERROR EN getInsights ---');
+      console.error('[Marketing]', error);
       throw error;
     }
   }

@@ -174,10 +174,10 @@ export class ForecastingService {
 
     // Log metrics for quick inspection
     console.log(
-      `Mean absolute error (${this.aggregationOption}): ${mae?.toFixed(2)}`,
+      `[Forecasting] Mean absolute error (${this.aggregationOption}): ${mae?.toFixed(2)}`,
     );
     console.log(
-      `Mean absolute percentage error (${this.aggregationOption}): ${mape?.toFixed(2)}%`,
+      `[Forecasting] Mean absolute percentage error (${this.aggregationOption}): ${mape?.toFixed(2)}%`,
     );
 
     // Return the prediction and metrics
