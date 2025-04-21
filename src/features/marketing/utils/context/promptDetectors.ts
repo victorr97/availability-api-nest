@@ -7,6 +7,13 @@ export function isMaxAvailabilityPrompt(prompt: string): boolean {
     'menos demanda',
     'menos popular',
     'menos solicitado',
+    'más popular',
+    'más solicitado',
+    'horario más popular',
+    'horario más solicitado',
+    'más demandado',
+    'más vendido',
+    'más reservado',
   ];
   const normalized = prompt.toLowerCase();
   return keywords.some((k) => normalized.includes(k));
