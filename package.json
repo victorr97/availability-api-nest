@@ -12,7 +12,7 @@
     "lint:fix": "eslint 'src/**/*.{ts,js}' --fix",
     "lint:all": "npm run lint && npm run prettier:check",
     "prettier:check": "prettier --check 'src/**/*.{ts,js,json,md}'",
-    "test:unit": "jest --config jest.config.ts",
+    "test:unit": "jest --config jest.config.ts --testPathIgnorePatterns=integration",
     "test:integration": "jest --config jest.integration.config.ts",
     "test:watch": "jest --watch --config jest.config.ts",
     "test:cov": "jest --coverage --config jest.config.ts",
