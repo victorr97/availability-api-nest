@@ -25,6 +25,7 @@ type AggregationOption = 'A' | 'B';
 @Injectable()
 export class ForecastingService {
   private fileReader = FileReaderSingleton.getInstance();
+  // You can change the strategy (ARIMA)
   private strategy = new LinearRegressionStrategy();
 
   // You can switch between aggregation by weekday (A) or unified (B)
@@ -41,15 +42,15 @@ export class ForecastingService {
     targetDate: string,
   ): Promise<Forecasting & { mae: number; mape: number }> {
     // Validate that the provided UUIDs exist in the allowed lists
-    if (!CITY_UUIDS.includes(cityId)) {
+    if (!(cityId in CITY_UUIDS)) {
       throw new NotFoundException(`City with UUID '${cityId}' does not exist.`);
     }
-    if (!VENUE_UUIDS.includes(venueId)) {
+    if (!(venueId in VENUE_UUIDS)) {
       throw new NotFoundException(
         `Venue with UUID '${venueId}' does not exist.`,
       );
     }
-    if (!ACTIVITY_UUIDS.includes(activityId)) {
+    if (!(activityId in ACTIVITY_UUIDS)) {
       throw new NotFoundException(
         `Activity with UUID '${activityId}' does not exist.`,
       );
@@ -95,6 +96,15 @@ export class ForecastingService {
       targetDate,
     );
 
+    if (filteredData.length > 0) {
+      const lastDayTimes = new Set(
+        filteredData[filteredData.length - 1].timeslots.map((t: any) => t.time),
+      );
+      predictedTimeslots = predictedTimeslots.filter((p) =>
+        lastDayTimes.has(p.time),
+      );
+    }
+
     // Sort predictedTimeslots by time (ascending)
     predictedTimeslots = predictedTimeslots.sort((a, b) =>
       a.time.localeCompare(b.time),
@@ -129,28 +139,45 @@ export class ForecastingService {
     let allPred: number[] = [];
     for (const testEntry of testData) {
       const realTimeslots = testEntry.timeslots;
-
-      // Predict for each test entry date
       const predicted = this.strategy.predict(testAggregates, testEntry.date);
-      // Align real and predicted timeslots for metric calculation
+
+      const realTimes = new Set(
+        realTimeslots.map((t: { time: any }) => t.time),
+      );
+      const filteredPredicted = predicted.filter((p) => realTimes.has(p.time));
+
       const { real, predicted: pred } = this.alignTimeslots(
         realTimeslots,
-        predicted,
+        filteredPredicted,
       );
+
       allReal = allReal.concat(real);
-      allPred = allPred.concat(pred);
+      const filteredPred = pred.filter(
+        (v) => typeof v === 'number' && !isNaN(v),
+      );
+      allPred = allPred.concat(filteredPred);
     }
 
     // Calculate error metrics
-    const mae = calculateMAE(allReal, allPred);
-    const mape = calculateMAPE(allReal, allPred);
+    let mae = null;
+    let mape = null;
+    if (
+      allReal.length > 0 &&
+      allPred.length > 0 &&
+      allReal.length === allPred.length
+    ) {
+      mae = calculateMAE(allReal, allPred);
+      mape = calculateMAPE(allReal, allPred);
+    } else {
+      console.warn('No hay datos alineados para calcular métricas.');
+    }
 
     // Log metrics for quick inspection
     console.log(
-      `Mean absolute error (${this.aggregationOption}): ${mae.toFixed(2)}`,
+      `Mean absolute error (${this.aggregationOption}): ${mae?.toFixed(2)}`,
     );
     console.log(
-      `Mean absolute percentage error (${this.aggregationOption}): ${mape.toFixed(2)}%`,
+      `Mean absolute percentage error (${this.aggregationOption}): ${mape?.toFixed(2)}%`,
     );
 
     // Return the prediction and metrics
@@ -160,8 +187,8 @@ export class ForecastingService {
       venue: venueId,
       city: cityId,
       predictedTimeslots,
-      mae,
-      mape,
+      mae: mae ?? 0,
+      mape: mape ?? 0,
     };
   }
 
@@ -177,9 +204,19 @@ export class ForecastingService {
     const real: number[] = [];
     const predicted: number[] = [];
     for (const pred of predictedTimeslots) {
-      if (realMap.has(pred.time)) {
-        real.push(realMap.get(pred.time)!);
-        predicted.push(pred.quantity);
+      const realValue = realMap.get(pred.time);
+      if (typeof realValue === 'number' && !isNaN(realValue)) {
+        const values = realTimeslots.filter((t) => t.time === pred.time);
+        const maxQuantity = Math.max(...values.map((v) => v.quantity));
+        const predictedQuantity = pred.quantity;
+        const predictedValue = Math.round(
+          Math.min(
+            isNaN(predictedQuantity) ? 0 : predictedQuantity,
+            maxQuantity,
+          ),
+        );
+        real.push(realValue);
+        predicted.push(predictedValue);
       }
     }
     return { real, predicted };

@@ -12,7 +12,8 @@
     "lint:fix": "eslint 'src/**/*.{ts,js}' --fix",
     "lint:all": "npm run lint && npm run prettier:check",
     "prettier:check": "prettier --check 'src/**/*.{ts,js,json,md}'",
-    "test": "jest --config jest.config.ts",
+    "test:unit": "jest --config jest.config.ts --testPathIgnorePatterns=integration",
+    "test:integration": "jest --config jest.integration.config.ts",
     "test:watch": "jest --watch --config jest.config.ts",
     "test:cov": "jest --coverage --config jest.config.ts",
     "test:ci": "jest --ci --runInBand --config jest.config.ts",
@@ -20,6 +21,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.787.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
@@ -27,7 +29,9 @@
     "arima": "^0.2.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "dotenv": "^16.5.0",
     "helmet": "^8.1.0",
+    "node-fetch": "^2.7.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1"
@@ -39,6 +43,8 @@
     "@types/helmet": "^4.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.4.2",
+    "@types/node-fetch": "^2.6.12",
+    "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^8.30.1",
     "@typescript-eslint/parser": "^8.30.1",
     "eslint": "^9.24.0",

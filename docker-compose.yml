@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: DockerfileApi
     container_name: marketplace-api 
     working_dir: /app 
     volumes:
@@ -9,3 +11,15 @@ services:
     ports:
       - "3002:3002"
     command: npm run start:dev 
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    profiles: ["ollama"]
+
+volumes:
+  ollama_data:

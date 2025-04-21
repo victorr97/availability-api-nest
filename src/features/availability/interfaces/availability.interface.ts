@@ -1,7 +1,4 @@
-export interface Timeslot {
-  time: string;
-  quantity: number;
-}
+import { Timeslot } from '@common/interfaces/interfaces';
 
 export interface Availability {
   date: string;
