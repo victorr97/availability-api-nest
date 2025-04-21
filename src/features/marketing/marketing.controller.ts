@@ -20,8 +20,8 @@ export class MarketingController {
     required: true,
     examples: {
       popularHour: {
-        summary: 'Horario más popular en la Sagrada Familia',
-        value: '¿Qué horario es el más popular en la Sagrada Familia?',
+        summary: 'Horario con menos disponibilidad en la Sagrada Familia',
+        value: '¿Qué horario tiene menos disponibilidad en la Sagrada Familia?',
       },
       bestDayRome: {
         summary: 'Mejor día para visitar Roma en abril',

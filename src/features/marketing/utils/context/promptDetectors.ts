@@ -31,3 +31,20 @@ export function isBestDayPrompt(prompt: string): boolean {
   const normalized = prompt.toLowerCase();
   return keywords.some((k) => normalized.includes(k));
 }
+
+export function isMinAvailabilityPrompt(prompt: string): boolean {
+  const keywords = [
+    'más popular',
+    'más vendido',
+    'más demandado',
+    'más reservado',
+    'horario más popular',
+    'horario más solicitado',
+    'menos disponibilidad',
+    'menos entradas',
+    'casi agotado',
+    'últimas entradas',
+  ];
+  const normalized = prompt.toLowerCase();
+  return keywords.some((k) => normalized.includes(k));
+}
