@@ -9,17 +9,46 @@ export class LinearRegressionStrategy implements ForecastingStrategy {
     const targetTimestamp = new Date(targetDate).getTime();
 
     for (const [time, values] of Object.entries(timeslotAggregates)) {
-      // values: [{ date, quantity }, ...]
       if (!values.length) continue;
-      // Convert dates to numeric X axis (days since first date)
+
       const baseDate = new Date(values[0].date).getTime();
-      const x = values.map(
-        (v) => (new Date(v.date).getTime() - baseDate) / (1000 * 60 * 60 * 24),
-      );
-      const y = values.map((v) => v.quantity);
       const targetX = (targetTimestamp - baseDate) / (1000 * 60 * 60 * 24);
+
+      const pairs = values
+        .filter((v) => typeof v.quantity === 'number' && !isNaN(v.quantity))
+        .map((v) => ({
+          xi: (new Date(v.date).getTime() - baseDate) / (1000 * 60 * 60 * 24),
+          yi: v.quantity,
+        }));
+
+      if (pairs.length === 0) {
+        const meanQuantity = Math.round(
+          values.reduce((sum, val) => sum + val.quantity, 0) / values.length
+        );
+        predictions.push({ time, quantity: meanQuantity });
+        continue;
+      }
+
+      const x = pairs.map((p) => p.xi);
+      const y = pairs.map((p) => p.yi);
+
       const predictedQuantity = this.linearRegression(x, y, targetX);
-      predictions.push({ time, quantity: Math.round(predictedQuantity) });
+      const maxQuantity = Math.max(...y);
+      const minQuantity = Math.min(...y);
+
+      // Limita la predicción al rango histórico
+      const limitedQuantity = Math.max(
+        minQuantity,
+        Math.min(
+          isNaN(predictedQuantity) ? 0 : Math.round(predictedQuantity),
+          maxQuantity,
+        ),
+      );
+
+      predictions.push({
+        time,
+        quantity: limitedQuantity,
+      });
     }
     return predictions;
   }

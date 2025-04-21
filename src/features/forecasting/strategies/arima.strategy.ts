@@ -12,11 +12,29 @@ export class ArimaStrategy implements ForecastingStrategy {
     for (const [time, values] of Object.entries(timeslotAggregates)) {
       if (!values.length) continue;
 
-      // Ordena los valores por fecha ascendente
-      const sorted = values.sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-      );
+      // Ordena y filtra valores válidos
+      const sorted = values
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .filter(
+          (v) =>
+            typeof v.quantity === 'number' &&
+            !isNaN(v.quantity) &&
+            v.quantity >= 0,
+        );
+
       const y = sorted.map((v) => v.quantity);
+
+      // Si hay menos de 5 valores o todos son iguales, usa la media
+      const allEqual = y.length > 0 && y.every((val) => val === y[0]);
+      if (y.length < 5 || allEqual) {
+        predictions.push({
+          time,
+          quantity: y.length
+            ? Math.round(y.reduce((sum, v) => sum + v, 0) / y.length)
+            : 0,
+        });
+        continue;
+      }
 
       // Calcula cuántos días hay entre el último dato y el targetDate
       const lastDate = new Date(sorted[sorted.length - 1].date);
