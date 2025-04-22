@@ -19,6 +19,17 @@ Ollama runs locally but requires downloading a large model (over 5GB) and a powe
 
 ---
 
+## 🛠️ Requirements
+
+To run this project, ensure you have the following installed on your machine:
+
+- **Docker**: Download and install Docker from [https://www.docker.com/](https://www.docker.com/).
+- **Docker Compose**: Docker Compose is required to orchestrate the containers. It is included by default with Docker Desktop on Windows and macOS. For Linux, you can install it separately by following the instructions at [Install Docker Compose](https://docs.docker.com/compose/install/).
+
+Make sure both Docker and Docker Compose are properly configured and running before proceeding with the setup.
+
+---
+
 ## 🚀 How to Use the Project with Docker Compose
 
 ### 🛠️ 1. Configure Environment Variables
