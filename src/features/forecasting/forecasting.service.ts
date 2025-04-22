@@ -19,6 +19,7 @@ import {
   VENUE_UUIDS,
   ACTIVITY_UUIDS,
 } from '@common/utils/uuids.util';
+//import { ArimaStrategy } from '@features/forecasting/strategies/arima.strategy';
 
 type AggregationOption = 'A' | 'B';
 
@@ -27,6 +28,7 @@ export class ForecastingService {
   private fileReader = FileReaderSingleton.getInstance();
   // You can change the strategy (ARIMA)
   private strategy = new LinearRegressionStrategy();
+  //private strategy = new ArimaStrategy();
 
   // You can switch between aggregation by weekday (A) or unified (B)
   private aggregationOption: AggregationOption = 'B';
@@ -174,10 +176,10 @@ export class ForecastingService {
 
     // Log metrics for quick inspection
     console.log(
-      `Mean absolute error (${this.aggregationOption}): ${mae?.toFixed(2)}`,
+      `[Forecasting] Mean absolute error (${this.aggregationOption}): ${mae?.toFixed(2)}`,
     );
     console.log(
-      `Mean absolute percentage error (${this.aggregationOption}): ${mape?.toFixed(2)}%`,
+      `[Forecasting] Mean absolute percentage error (${this.aggregationOption}): ${mape?.toFixed(2)}%`,
     );
 
     // Return the prediction and metrics

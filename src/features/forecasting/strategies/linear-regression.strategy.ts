@@ -11,9 +11,11 @@ export class LinearRegressionStrategy implements ForecastingStrategy {
     for (const [time, values] of Object.entries(timeslotAggregates)) {
       if (!values.length) continue;
 
+      // Use the first date as the base for calculating days (x axis)
       const baseDate = new Date(values[0].date).getTime();
       const targetX = (targetTimestamp - baseDate) / (1000 * 60 * 60 * 24);
 
+      // Prepare (x, y) pairs: x = days since baseDate, y = quantity
       const pairs = values
         .filter((v) => typeof v.quantity === 'number' && !isNaN(v.quantity))
         .map((v) => ({
@@ -21,6 +23,7 @@ export class LinearRegressionStrategy implements ForecastingStrategy {
           yi: v.quantity,
         }));
 
+      // If no valid pairs, fallback to mean quantity
       if (pairs.length === 0) {
         const meanQuantity = Math.round(
           values.reduce((sum, val) => sum + val.quantity, 0) / values.length,
@@ -32,11 +35,12 @@ export class LinearRegressionStrategy implements ForecastingStrategy {
       const x = pairs.map((p) => p.xi);
       const y = pairs.map((p) => p.yi);
 
+      // Predict quantity for the target date using linear regression
       const predictedQuantity = this.linearRegression(x, y, targetX);
       const maxQuantity = Math.max(...y);
       const minQuantity = Math.min(...y);
 
-      // Limita la predicción al rango histórico
+      // Limit the prediction to the historical min/max range
       const limitedQuantity = Math.max(
         minQuantity,
         Math.min(
@@ -53,6 +57,9 @@ export class LinearRegressionStrategy implements ForecastingStrategy {
     return predictions;
   }
 
+  /**
+   * Simple linear regression: fits a line to (x, y) and predicts y for predictX.
+   */
   private linearRegression(x: number[], y: number[], predictX: number): number {
     const n = x.length;
     if (n === 0) return 0;

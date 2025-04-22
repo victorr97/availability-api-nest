@@ -1,5 +1,12 @@
 import fetch from 'node-fetch';
 
+/**
+ * Sends a prompt to the specified Ollama model and returns the generated response.
+ * @param model - The model name to use (e.g., 'llama2')
+ * @param systemPrompt - The system prompt (instructions/context for the model)
+ * @param userPrompt - The user prompt (actual user question or input)
+ * @returns The model's response as a string
+ */
 export async function askOllama({
   model,
   systemPrompt,
@@ -19,7 +26,7 @@ export async function askOllama({
         { role: 'user', content: userPrompt },
       ],
       // eslint-disable-next-line camelcase
-      max_tokens: 1000,
+      max_tokens: 1000, // Use snake_case as required by the Ollama API spec
     }),
   });
 
@@ -27,6 +34,7 @@ export async function askOllama({
     choices?: { message?: { content?: string } }[];
   };
 
+  // Return the generated content or a fallback message if not present
   return (
     data.choices?.[0]?.message?.content?.trim() || 'Sin respuesta del modelo'
   );

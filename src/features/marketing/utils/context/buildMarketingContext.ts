@@ -19,17 +19,24 @@ const normalize = (text: string) =>
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase();
 
+/**
+ * Builds a marketing context summary string based on the user's prompt.
+ * The summary is tailored to the intent detected in the prompt (best day, max/min availability, etc.)
+ * and filtered by extracted entities (activity, venue, city).
+ */
 export function buildMarketingContext(prompt: string): string {
   const resumen: string[] = [];
   const filters = extractFiltersFromPrompt(prompt);
 
-  // Detecta si pregunta por el mejor día
+  // Detect if the prompt is asking for the best day
   if (isBestDayPrompt(prompt)) {
+    // Try to extract the month from the prompt (if present)
     const monthMatch = prompt.match(
       /abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|enero|febrero|marzo/,
     );
     let month = '';
     if (monthMatch) {
+      // Map month name to number and build YYYY-MM string
       const months = {
         enero: '01',
         febrero: '02',
@@ -47,9 +54,10 @@ export function buildMarketingContext(prompt: string): string {
       const year = new Date().getFullYear();
       month = `${year}-${months[monthMatch[0] as keyof typeof months]}`;
     }
+    // Get the best day with the most availability for the filters and month
     const bestDay = getBestDayAvailability({ ...filters, month });
     if (bestDay) {
-      // Busca el slot con más disponibilidad de ese día
+      // Find the slot with the most availability on that day
       const data = loadData();
       const filtered = data.filter(
         (a: any) =>
@@ -77,7 +85,7 @@ export function buildMarketingContext(prompt: string): string {
         });
       });
 
-      // Contexto estructurado
+      // Add a structured context summary for the best day and slot
       resumen.push(
         `Día recomendado: ${bestDay.date}\nHorario recomendado: ${bestSlot.time}\nEntradas disponibles: ${bestSlot.availability}\nMotivo: Es el día y horario con mayor disponibilidad en ${monthMatch ? monthMatch[0] : 'el mes'} para ${filters.activity || filters.venue || 'la actividad'}.\n`,
       );
@@ -89,9 +97,10 @@ export function buildMarketingContext(prompt: string): string {
     return resumen.join('\n');
   }
 
-  // Tipa slot explícitamente
+  // Explicitly type slot and select the right strategy based on the prompt
   let slot: Slot | undefined;
   if (isMaxAvailabilityPrompt(prompt)) {
+    // If the prompt asks for max availability, get the slot with the most availability
     slot = getMaxAvailability(filters) as Slot;
     if (slot) {
       resumen.push(
@@ -99,9 +108,11 @@ export function buildMarketingContext(prompt: string): string {
       );
     }
   } else {
+    // Otherwise, get the slot with the least availability (most popular/urgent)
     slot = getMinAvailability(filters) as Slot;
     if (slot) {
       let urgencia = '';
+      // Add urgency messages based on how low the availability is
       if (slot.availability <= 10) {
         urgencia =
           ' ¡Atención! Quedan muy pocas entradas, se están agotando rápidamente.';
@@ -114,12 +125,13 @@ export function buildMarketingContext(prompt: string): string {
     }
   }
 
-  // Solo agrega el resto si NO hay filtro de actividad
+  // If no activity filter, add additional context about low availability activities and trending cities
   if (!filters.activity) {
     const lowAvailability = getActivitiesWithLowAvailability({});
     if (lowAvailability.length > 0) {
       resumen.push('\nActividades con baja disponibilidad:');
       for (const item of lowAvailability.slice(0, 3)) {
+        // For each activity, show the slot with the lowest availability
         const slot = (
           item.slots as Array<{ time: string; availability: number }>
         ).sort((a, b) => (a.availability ?? 0) - (b.availability ?? 0))[0];
@@ -129,6 +141,7 @@ export function buildMarketingContext(prompt: string): string {
       }
     }
 
+    // Add trending cities with the most almost-sold-out activities
     const trendingCities = getTrendingCities({});
     if (trendingCities.length > 0) {
       resumen.push('\nCiudades con más actividades casi agotadas:');
@@ -138,5 +151,6 @@ export function buildMarketingContext(prompt: string): string {
     }
   }
 
+  // Return the final context summary as a string
   return resumen.join('\n');
 }

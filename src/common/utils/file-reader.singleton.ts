@@ -25,15 +25,13 @@ export class FileReaderSingleton {
 
   // Read and cache data for a specific date prefix
   public getDataByDatePrefix(datePrefix: string): any[] {
-    const normalizedPrefix = datePrefix.replace(/-/g, '');
-
-    if (this.dataCache[normalizedPrefix]) {
-      return this.dataCache[normalizedPrefix]; // Return cached data
+    if (this.dataCache[datePrefix]) {
+      return this.dataCache[datePrefix]; // Return cached data
     }
 
     const allFiles = readdirSync(this.dataDir);
     const matchingFiles = allFiles
-      .filter((f) => f.includes(normalizedPrefix) && f.endsWith('.json'))
+      .filter((f) => f.startsWith(datePrefix) && f.endsWith('.json'))
       .sort();
 
     const data: any[] = [];
@@ -48,7 +46,7 @@ export class FileReaderSingleton {
       }
     }
 
-    this.dataCache[normalizedPrefix] = data; // Cache the data
+    this.dataCache[datePrefix] = data; // Cache the data
     return data;
   }
 }

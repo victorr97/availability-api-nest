@@ -25,10 +25,12 @@ describe('ForecastingController', () => {
   });
 
   it('should be defined', () => {
+    // Checks that the controller is properly instantiated
     expect(controller).toBeDefined();
   });
 
   it('should call service with correct params', async () => {
+    // Mocks a valid DTO and ensures the service is called with the correct arguments
     const dto: ForecastingQueryDto = {
       activityId: 'a969d9f6-f7d6-43d1-9a36-02de49b7bce3',
       cityId: '5ff8e5f2-98d9-4321-8ae4-3f6c48c7f8d9',
@@ -50,6 +52,7 @@ describe('ForecastingController', () => {
   });
 
   it('should throw BadRequestException if params are missing', async () => {
+    // Ensures that missing parameters cause a BadRequestException
     await expect(controller.predictAvailability({} as any)).rejects.toThrow();
   });
 });

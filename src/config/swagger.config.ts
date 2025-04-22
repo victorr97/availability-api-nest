@@ -27,7 +27,7 @@ export function setupSwagger(app: INestApplication) {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [], // Add any custom models here if needed
+    extraModels: [],
   });
 
   SwaggerModule.setup('api', app, document);

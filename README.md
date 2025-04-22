@@ -2,6 +2,8 @@
 
 This project is a backend API built with NestJS to manage availability data for a tourism marketplace. It includes features for forecasting, marketing insights, and dynamic pricing suggestions using LLMs (Large Language Models).
 
+![Architecture Diagram](./assets/architecture.png)
+
 ---
 
 ## 🧠 LLM Options: Bedrock vs Ollama
@@ -205,6 +207,67 @@ if you are using Ollama as your LLM provider, note that in addition to port 3002
 
 ---
 
+## 🛠️ TODO / Future Improvements
+
+### Forecasting
+- **Neural Network Models**: Implement models to improve forecasting accuracy (goal: <5% error).
+- **Synthetic Data Generation**: Use GANs for scenarios with limited historical data to enrich the training set.
+
+### Model Selection and Benchmarking
+- Add tools for easy benchmarking and switching between ARIMA, regression, and neural models to suit each use case.
+
+### Automated Hyperparameter Tuning
+- Integrate automated tuning tools (e.g., Optuna, Ray Tune) for better performance.
+
+---
+
+### Marketing
+
+#### Prompt Engineering
+- Refine system prompts to increase the relevance and creativity of LLM responses.
+
+#### Input Classification
+- Implement NLP classification for better understanding and routing of marketing queries.
+
+#### Model Experimentation
+- Continuously test different LLM providers and models to select the best-fit for marketing use cases.
+
+---
+
+### Pricing
+
+#### Advanced Pricing Logic
+- Handle more complex pricing scenarios: competitor pricing, seasonal trends, special events.
+
+#### Testing and Simulation
+- Build simulation tools to validate pricing changes before live deployment.
+
+---
+
+### API & Infrastructure
+
+#### Scalability
+- Deploy via **Kubernetes** to enable horizontal scalability and high availability.
+- Use tools like **Karpenter** for autoscaling and cost optimization.
+
+#### Security
+- Add robust API protections:
+  - OAuth2, JWT, API keys
+  - Input validation/sanitization
+  - Rate limiting, CORS policies, HTTPS.
+
+#### Cloud-Native Best Practices
+- Migrate components to managed services for database, monitoring, and logs.
+
+#### CI/CD Automation
+- Set up CI/CD pipelines for safe and fast delivery of updates.
+- Integrate **SonarQube** for static code analysis and technical debt tracking, ensuring that only code meeting quality standards is deployed to production.
+- Automatically run unit, integration, and end-to-end (E2E) tests as part of the pipeline to catch issues early.
+- Only proceed to deployment if all quality gates and tests pass, enabling reliable and robust releases to the server.
+
+
+---
+
 ## 🧪 Technical Challenge — Backend Developer
 
 Welcome to your technical challenge! This test is designed to evaluate your backend development skills using Node.js and TypeScript in a context inspired by a real tourism marketplace.
@@ -313,3 +376,7 @@ You are free to design the structure as you prefer, but your solution must inclu
 - Zip your project and submit it via email or the method provided
 - Include any setup steps in your README
 - If you add new endpoints or features, document them clearly
+
+---
+
+_Last updated: April 21, 2025_

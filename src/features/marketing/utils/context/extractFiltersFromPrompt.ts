@@ -5,12 +5,17 @@ import {
 } from '@common/utils/alias.util';
 import { CITY_MAIN_VENUE_ACTIVITY } from '@common/utils/cityVenueActivity.util';
 
+// Helper function to normalize text (remove accents and lowercase)
 const normalize = (text: string) =>
   text
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase();
 
+/**
+ * Extracts filters (activity, venue, city) from a user prompt using aliases and mappings.
+ * Returns an object with the detected filters.
+ */
 export function extractFiltersFromPrompt(prompt: string): {
   venue: string | undefined;
   city?: string;
@@ -23,7 +28,7 @@ export function extractFiltersFromPrompt(prompt: string): {
   } = { venue: undefined };
   const normalizedPrompt = normalize(prompt);
 
-  // 1. Buscar por alias de actividad
+  // 1. Try to find an activity by matching aliases in the prompt
   for (const [activity, aliases] of Object.entries(ACTIVITY_ALIASES)) {
     if (aliases.some((alias) => normalizedPrompt.includes(normalize(alias)))) {
       filters.activity = activity;
@@ -31,15 +36,14 @@ export function extractFiltersFromPrompt(prompt: string): {
     }
   }
 
-  // 2. Buscar por alias de venue (si aún no hay actividad definida)
+  // 2. If no activity found, try to find a venue by matching aliases
   if (!filters.activity) {
     for (const [venue, aliases] of Object.entries(VENUE_ALIASES)) {
       if (
         aliases.some((alias) => normalizedPrompt.includes(normalize(alias)))
       ) {
         filters.venue = venue;
-        // Si hay una ciudad asociada a ese venue, asígnala también
-        // Y busca la actividad principal asociada a ese venue
+        // If the venue is found, assign the associated city and main activity
         for (const [city, mapping] of Object.entries(
           CITY_MAIN_VENUE_ACTIVITY,
         )) {
@@ -54,7 +58,7 @@ export function extractFiltersFromPrompt(prompt: string): {
     }
   }
 
-  // 3. Buscar por alias de ciudad
+  // 3. Try to find a city by matching aliases in the prompt
   for (const [city, aliases] of Object.entries(CITY_ALIASES)) {
     if (aliases.some((alias) => normalizedPrompt.includes(normalize(alias)))) {
       filters.city = city;
@@ -62,7 +66,7 @@ export function extractFiltersFromPrompt(prompt: string): {
     }
   }
 
-  // 4. Si solo hay ciudad, asigna venue y actividad principal
+  // 4. If only city is found, assign its main venue and activity from the mapping
   if (
     filters.city &&
     !filters.venue &&

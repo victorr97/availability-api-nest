@@ -7,12 +7,14 @@ describe('PricingController', () => {
   let service: PricingService;
 
   beforeEach(async () => {
+    // Set up the testing module with the controller and a mocked service
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PricingController],
       providers: [
         {
           provide: PricingService,
           useValue: {
+            // Mock the suggestDynamicPricing method to return a fixed value
             suggestDynamicPricing: jest.fn().mockReturnValue({
               activityId: 'test',
               startDate: '2025-01-01',
@@ -29,10 +31,12 @@ describe('PricingController', () => {
   });
 
   it('should be defined', () => {
+    // Checks that the controller is properly instantiated
     expect(controller).toBeDefined();
   });
 
   it('should call service and return pricing suggestion', async () => {
+    // Ensures that the controller calls the service with the correct arguments and returns the expected result
     const query = {
       activityId: 'test',
       startDate: '2025-01-01',
