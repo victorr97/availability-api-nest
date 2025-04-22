@@ -1,3 +1,273 @@
+# Availability API
+
+This project is a backend API built with NestJS to manage availability data for a tourism marketplace. It includes features for forecasting, marketing insights, and dynamic pricing suggestions using LLMs (Large Language Models).
+
+![Architecture Diagram](./assets/architecture.png)
+
+---
+
+## 🧠 LLM Options: Bedrock vs Ollama
+
+The project supports two different LLM providers:
+
+- **AWS Bedrock (Claude model)** – Recommended  
+- **Local Ollama container (Mistral model)**
+
+You can choose which provider to use via an environment variable.  
+**Bedrock is recommended** because it offloads computation to the cloud and doesn't consume local resources, making it much more efficient for development and testing.  
+Ollama runs locally but requires downloading a large model (over 5GB) and a powerful machine.
+
+---
+
+## 🚀 How to Use the Project with Docker Compose
+
+### 🛠️ 1. Configure Environment Variables
+
+Create a `.env` file in the **root** directory of the project with the following variables if using **Bedrock**:
+
+```
+AWS_ACCESS_KEY_ID=***
+AWS_SECRET_ACCESS_KEY=***
+AWS_REGION=***
+BEDROCK_MODEL_ID=***
+LLM_PROVIDER=bedrock
+```
+
+This configuration is required for connecting to the Bedrock Claude model.
+
+---
+
+### ▶️ 2. Start the Project with Bedrock (Recommended)
+
+```bash
+docker compose up
+```
+
+This command will:
+
+- Build and run the API container
+- Connect to the Bedrock LLM provider
+- **Will NOT** download the Ollama container or the Mistral model
+
+---
+
+### 🔍 3. Test the API
+
+You can test the LLM-powered endpoint like this:
+
+```bash
+http://localhost:3002/marketing/insights?prompt=¿Qué horario es el más popular en la Sagrada Familia?
+```
+
+Example response:
+```json
+{
+  "insight": "¡Hola! Como experto en marketing turístico, te recomiendo reservar cuanto antes la Entrada general Sagrada Familia en Barcelona para el 9 de abril de 2025 a las 15:30. ¡Se están agotando las últimas plazas disponibles! La Sagrada Familia está arrasando esta temporada..."
+}
+```
+
+At this point, your API is running and connected to the Bedrock LLM.
+
+---
+
+## 🔄 Switching to Local Ollama (Optional)
+
+If you'd rather test locally with Mistral:
+
+### ⛔️ 1. Stop and Clean the Previous Setup
+
+```bash
+docker compose down
+```
+
+To clean all images (optional, but useful):
+
+```bash
+docker system prune -a
+```
+
+> ⚠️ Warning: `prune -a` will remove **all Docker images**, so only use it if you’re sure. Avoid if using Docker for other projects.
+
+---
+
+### ⚙️ 2. Reconfigure for Ollama
+
+Update your `.env` file:
+
+```
+LLM_PROVIDER=ollama
+```
+
+---
+
+### 🏗️ 3. Start the Project with Ollama
+
+```bash
+docker compose --profile ollama up
+```
+
+This will:
+
+- Start both the API container and the Ollama container
+
+Then, download the Mistral model (only required once):
+
+```bash
+docker compose exec ollama ollama pull mistral
+```
+
+> This may take a while — the model is over 5GB and will consume local resources.
+
+---
+
+### 🧪 4. Test the Local API
+
+Once everything is up, test an endpoint like:
+
+```bash
+http://localhost:3002/marketing/insights?prompt=¿Qué dia del mes de abril me recomiendas visitar Roma?
+```
+
+⚠️ The response time depends on your machine. Expect longer delays with large models.
+
+Example response:
+   ```json
+   {
+     "insight": "¡Amigo viajero, para ti es la oportunidad perfecta! El día recomendado para tu visita turística a Roma sería el 9 de abril de este año, más específicamente a las 13:00. Ese día hay un total de 493 entradas disponibles en nuestra popular visita guiada Coliseo + Foro..."
+   }
+   ```
+---
+
+## 🧹 Code Quality
+
+### **Linting**
+```bash
+npm run lint
+```
+
+### **Fix Linting Issues**
+```bash
+npm run lint:fix
+```
+
+### **Check Formatting**
+```bash
+npm run prettier:check
+```
+
+---
+
+## 🧪 Testing
+
+### **Run Unit Tests**
+```bash
+npm run test:unit
+```
+
+### **Run Integration Tests**
+```bash
+npm run test:integration
+```
+
+### **Watch Tests**
+```bash
+npm run test:watch
+```
+
+### **Test Coverage**
+```bash
+npm run test:cov
+```
+
+---
+
+## 🧹 Clean the Project
+```bash
+npm run clean
+```
+
+---
+
+## 📄 API Documentation
+
+Full API documentation (including all endpoints, parameters, and example responses) is available via Swagger once the server is running:
+
+- Swagger UI: http://localhost:3002/api
+
+Here, you'll be able to browse and interact with all available API endpoints, including their HTTP methods, parameters, expected responses, and example requests. It's a powerful tool for exploring and testing the backend functionality.
+
+---
+
+## 📋 Important Notes
+
+The project exposes port 3002. If you need to change it, update the `docker-compose.yml` file and the ports section.  
+Ensure that port 3002 is not being used by another service on your machine.
+
+if you are using Ollama as your LLM provider, note that in addition to port 3002 used by the main API, the Ollama container exposes port 11434, so make sure that no other services on your machine are using that port to avoid conflicts.
+
+---
+
+## 🛠️ TODO / Future Improvements
+
+### Forecasting
+- **Neural Network Models**: Implement models to improve forecasting accuracy (goal: <5% error).
+- **Synthetic Data Generation**: Use GANs for scenarios with limited historical data to enrich the training set.
+
+### Model Selection and Benchmarking
+- Add tools for easy benchmarking and switching between ARIMA, regression, and neural models to suit each use case.
+
+### Automated Hyperparameter Tuning
+- Integrate automated tuning tools (e.g., Optuna, Ray Tune) for better performance.
+
+---
+
+### Marketing
+
+#### Prompt Engineering
+- Refine system prompts to increase the relevance and creativity of LLM responses.
+
+#### Input Classification
+- Implement NLP classification for better understanding and routing of marketing queries.
+
+#### Model Experimentation
+- Continuously test different LLM providers and models to select the best-fit for marketing use cases.
+
+---
+
+### Pricing
+
+#### Advanced Pricing Logic
+- Handle more complex pricing scenarios: competitor pricing, seasonal trends, special events.
+
+#### Testing and Simulation
+- Build simulation tools to validate pricing changes before live deployment.
+
+---
+
+### API & Infrastructure
+
+#### Scalability
+- Deploy via **Kubernetes** to enable horizontal scalability and high availability.
+- Use tools like **Karpenter** for autoscaling and cost optimization.
+
+#### Security
+- Add robust API protections:
+  - OAuth2, JWT, API keys
+  - Input validation/sanitization
+  - Rate limiting, CORS policies, HTTPS.
+
+#### Cloud-Native Best Practices
+- Migrate components to managed services for database, monitoring, and logs.
+
+#### CI/CD Automation
+- Set up CI/CD pipelines for safe and fast delivery of updates.
+- Integrate **SonarQube** for static code analysis and technical debt tracking, ensuring that only code meeting quality standards is deployed to production.
+- Automatically run unit, integration, and end-to-end (E2E) tests as part of the pipeline to catch issues early.
+- Only proceed to deployment if all quality gates and tests pass, enabling reliable and robust releases to the server.
+
+
+---
+
 ## 🧪 Technical Challenge — Backend Developer
 
 Welcome to your technical challenge! This test is designed to evaluate your backend development skills using Node.js and TypeScript in a context inspired by a real tourism marketplace.
@@ -28,14 +298,16 @@ GET /availability/by-date?start=YYYY-MM-DD&end=YYYY-MM-DD
 This endpoint returns a list of availability records for a given date range.
 
 - A folder `/data/` containing **46 JSON files** simulating availability:
-- 30 days into the future
-- 10 historical days
-- 6 updates from "today"
+  - 30 days into the future
+  - 10 historical days
+  - 6 updates from "today"
 
 - A README file including UUID mappings for:
-- `city`
-- `venue`
-- `activity`
+  - `city`
+  - `venue`
+  - `activity`
+
+---
 
 ## 🏙️ City UUIDs
 
@@ -104,3 +376,7 @@ You are free to design the structure as you prefer, but your solution must inclu
 - Zip your project and submit it via email or the method provided
 - Include any setup steps in your README
 - If you add new endpoints or features, document them clearly
+
+---
+
+_Last updated: April 21, 2025_

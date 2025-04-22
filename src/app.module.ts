@@ -1,7 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AvailabilityModule } from './availability/availability.module';
+import { AvailabilityModule } from '@features/availability/availability.module';
+import { ForecastingModule } from '@features/forecasting/forecasting.module';
+import { MarketingModule } from '@features/marketing/marketing.module';
+import { PricingModule } from '@features/pricing/pricing.module';
 
 @Module({
-  imports: [AvailabilityModule],
+  imports: [
+    AvailabilityModule,
+    ForecastingModule,
+    MarketingModule,
+    PricingModule,
+  ],
 })
 export class AppModule {}
